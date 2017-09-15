@@ -6,6 +6,7 @@ package com.acme.application.database.or.app;
 
 import com.acme.application.database.or.DefaultCatalog;
 import com.acme.application.database.or.app.tables.Code;
+import com.acme.application.database.or.app.tables.Document;
 import com.acme.application.database.or.app.tables.Person;
 import com.acme.application.database.or.app.tables.Role;
 import com.acme.application.database.or.app.tables.RolePermission;
@@ -38,7 +39,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class App extends SchemaImpl {
 
-    private static final long serialVersionUID = 675837301;
+    private static final long serialVersionUID = -242209403;
 
     /**
      * The reference instance of <code>APP</code>
@@ -49,6 +50,11 @@ public class App extends SchemaImpl {
      * The table <code>APP.CODE</code>.
      */
     public final Code CODE = com.acme.application.database.or.app.tables.Code.CODE;
+
+    /**
+     * The table <code>APP.DOCUMENT</code>.
+     */
+    public final Document DOCUMENT = com.acme.application.database.or.app.tables.Document.DOCUMENT;
 
     /**
      * The table <code>APP.PERSON</code>.
@@ -111,6 +117,7 @@ public class App extends SchemaImpl {
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
             Code.CODE,
+            Document.DOCUMENT,
             Person.PERSON,
             Role.ROLE,
             RolePermission.ROLE_PERMISSION,

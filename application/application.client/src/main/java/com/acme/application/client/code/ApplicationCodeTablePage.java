@@ -13,7 +13,6 @@ import org.eclipse.scout.rt.client.ui.desktop.outline.IOutline;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.AbstractPageWithTable;
 import org.eclipse.scout.rt.client.ui.form.FormEvent;
 import org.eclipse.scout.rt.client.ui.form.FormListener;
-import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
@@ -24,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import com.acme.application.client.code.ApplicationCodeForm.DisplayMode;
 import com.acme.application.client.code.ApplicationCodeTablePage.Table;
 import com.acme.application.client.common.AbstractExportableTable;
-import com.acme.application.client.common.FontAwesomeIcons;
 import com.acme.application.client.text.TextForm;
+import com.acme.application.shared.FontAwesomeIcons;
 import com.acme.application.shared.code.ApplicationCodePageData;
 import com.acme.application.shared.code.ApplicationCodePageData.ApplicationCodeRowData;
 import com.acme.application.shared.code.ApplicationCodeUtility;
@@ -192,7 +191,7 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 			protected void execAction() {
 				String codeId = getIdColumn().getSelectedValue();
 
-				TextForm form = BEANS.get(TextForm.class);
+				TextForm form = new TextForm();
 				form.setKey(codeId);
 				form.startModify();
 				form.waitFor();
@@ -208,6 +207,7 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 			@Override
 			public void formChanged(FormEvent e) {
 				if (FormEvent.TYPE_CLOSED == e.getType() && e.getForm().isFormStored()) {
+					ApplicationCodeUtility.reload(codeType.getClass());
 					reloadPage();
 				}
 			}

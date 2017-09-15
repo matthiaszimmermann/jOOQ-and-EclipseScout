@@ -7,8 +7,8 @@ import org.eclipse.scout.rt.client.ui.desktop.outline.pages.IPage;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.shared.TEXTS;
 
-import com.acme.application.client.common.FontAwesomeIcons;
 import com.acme.application.client.text.TextTablePage;
+import com.acme.application.shared.FontAwesomeIcons;
 
 @Order(3000)
 public class AdminOutline extends AbstractOutline {

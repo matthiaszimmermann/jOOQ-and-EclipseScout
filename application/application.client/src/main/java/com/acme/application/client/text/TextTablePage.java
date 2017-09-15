@@ -19,8 +19,8 @@ import org.eclipse.scout.rt.shared.services.common.code.ICodeType;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 
 import com.acme.application.client.common.AbstractExportableTable;
-import com.acme.application.client.common.FontAwesomeIcons;
 import com.acme.application.client.text.TextTablePage.Table;
+import com.acme.application.shared.FontAwesomeIcons;
 import com.acme.application.shared.code.LocaleCodeType;
 import com.acme.application.shared.text.ITextService;
 import com.acme.application.shared.text.ReadTextPagePermission;

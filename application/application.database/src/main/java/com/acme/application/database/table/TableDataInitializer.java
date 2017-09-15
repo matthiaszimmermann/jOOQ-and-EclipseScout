@@ -1,5 +1,9 @@
 package com.acme.application.database.table;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -8,25 +12,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.acme.application.database.generator.Config;
-import com.acme.application.database.generator.DataInitializer;
+import com.acme.application.database.generator.IDataInitializer;
 import com.acme.application.database.or.app.tables.records.CodeRecord;
+import com.acme.application.database.or.app.tables.records.DocumentRecord;
 import com.acme.application.database.or.app.tables.records.PersonRecord;
 import com.acme.application.database.or.app.tables.records.RoleRecord;
 import com.acme.application.database.or.app.tables.records.TextRecord;
 import com.acme.application.database.or.app.tables.records.TypeRecord;
 import com.acme.application.database.or.app.tables.records.UserRecord;
 import com.acme.application.database.or.app.tables.records.UserRoleRecord;
+import com.acme.application.shared.code.FileCodeType;
+import com.acme.application.shared.code.LocaleCodeType;
+import com.acme.application.shared.code.SexCodeType;
+import com.acme.application.shared.common.DateTimeUtility;
 import com.acme.application.shared.security.PasswordUtility;
 
-public class TableDataInitializer extends TableUtility implements DataInitializer {
+public class TableDataInitializer extends TableUtility implements IDataInitializer {
 
-	Logger log = LoggerFactory.getLogger(TableDataInitializer.class);
+	Logger LOG = LoggerFactory.getLogger(TableDataInitializer.class);
 
 	// Code type IDs need to match with Java code
-	public static final String TYPE_ID_LOCALE = "af410ba5-b1a3-4181-a655-0bcfe9d53b78";
-	public static final String TYPE_ID_SEX = "17f42353-e6e6-4654-a879-02535cc9c44f";
+	public static final String TYPE_ID_LOCALE = LocaleCodeType.ID;
+	public static final String TYPE_ID_SEX = SexCodeType.ID;
+	public static final String TYPE_ID_FILE = FileCodeType.ID;
 
 	public static final TypeRecord TYPE_LOCALE = new TypeRecord(TYPE_ID_LOCALE, CodeTypeEnum.LOCALE.type());
+	public static final TypeRecord TYPE_FILE = new TypeRecord(TYPE_ID_FILE, CodeTypeEnum.STRING.type());
 	public static final TypeRecord TYPE_SEX = new TypeRecord(TYPE_ID_SEX, CodeTypeEnum.STRING.type());
 
 	// Male/female code ID's need to match with Java code
@@ -37,7 +48,7 @@ public class TableDataInitializer extends TableUtility implements DataInitialize
 	public static final PersonRecord PERSON_ROOT = new PersonRecord(createId(), "Root", "", CODE_MALE.getId(), true);
 	public static final PersonRecord PERSON_ALICE = new PersonRecord(createId(), "Alice", "", CODE_FEMALE.getId(), true);
 	public static final PersonRecord PERSON_BOB = new PersonRecord(createId(), "Bob", "", CODE_MALE.getId(), true);
-
+	
 	public static final UserRecord USER_ROOT = new UserRecord(
 			UserTable.ROOT, 
 			PERSON_ROOT.getId(), 
@@ -59,8 +70,15 @@ public class TableDataInitializer extends TableUtility implements DataInitialize
 	public static final UserRoleRecord USER_ROLE_ROOT = new UserRoleRecord(UserTable.ROOT, RoleTable.ROOT);
 	public static final UserRoleRecord USER_ROLE_ALICE = new UserRoleRecord(USER_ALICE.getUsername(), RoleTable.USER);
 
+	public static byte [] DOCUMENT_README = "hello world".getBytes();
+	public static String DOCUMENT_LOGO_NAME = "EclipseScout_Logo.png";
+	public static String TIMESTAMP = DateTimeUtility.nowInUtcAsString();
+	public static final DocumentRecord DOCUMENT_ALICE_1 = new DocumentRecord(createId(), "Readme.txt", "txt", getSize(DOCUMENT_README), DOCUMENT_README, USER_ALICE.getUsername(), TIMESTAMP, true);
+	public static final DocumentRecord DOCUMENT_ALICE_2 = new DocumentRecord(createId(), DOCUMENT_LOGO_NAME, "png", getSize(null), null, USER_ALICE.getUsername(), TIMESTAMP, true);
+
 	public static final TextRecord TEXT_TYPE_LOCALE = new TextRecord(TYPE_ID_LOCALE, TextTable.LOCALE_DEFAULT, "Locale");
 	public static final TextRecord TEXT_TYPE_SEX = new TextRecord(TYPE_ID_SEX, TextTable.LOCALE_DEFAULT, "Sex");
+	public static final TextRecord TEXT_TYPE_FILE = new TextRecord(TYPE_ID_FILE, TextTable.LOCALE_DEFAULT, "File Type");
 	
 	public static final TextRecord TEXT_UNDEFINED = new TextRecord(CODE_UNDEFINED.getId(), TextTable.LOCALE_DEFAULT, "Undefined");
 
@@ -86,7 +104,7 @@ public class TableDataInitializer extends TableUtility implements DataInitialize
 
 	@Override
 	public void initialize() {
-		log.info("Insert minimal setup data");
+		LOG.info("Insert minimal setup data");
 
 		insertTexts();
 		insertCodeTypes();
@@ -120,8 +138,13 @@ public class TableDataInitializer extends TableUtility implements DataInitialize
 	 * code type get overwritten by dynamic codes.
 	 */
 	private void insertCodeTypes() {
-		insertSexCodeType();
 		insertLocaleCodeType();
+		insertFileCodeType();
+		insertSexCodeType();
+	}
+
+	private void insertFileCodeType() {
+		getContext().executeInsert(TYPE_FILE);
 	}
 
 	private void insertSexCodeType() {
@@ -144,6 +167,7 @@ public class TableDataInitializer extends TableUtility implements DataInitialize
 
 	private void insertTexts() {
 		getContext().executeInsert(TEXT_TYPE_LOCALE);
+		getContext().executeInsert(TEXT_TYPE_FILE);
 		getContext().executeInsert(TEXT_TYPE_SEX);
 		
 		getContext().executeInsert(TEXT_UNDEFINED);
@@ -157,11 +181,17 @@ public class TableDataInitializer extends TableUtility implements DataInitialize
 
 	@Override
 	public void addSamples() {
-		log.info("Add sample data");
+		LOG.info("Add sample data");
 
 		insertSamplePersons();
 		insertSampleUsers();
 		insertSampleRoles();
+		insertSampleDocuments();
+	}
+
+	private void insertSamplePersons() {
+		getContext().executeInsert(PERSON_ALICE);
+		getContext().executeInsert(PERSON_BOB);
 	}
 
 	private void insertSampleRoles() {
@@ -172,12 +202,36 @@ public class TableDataInitializer extends TableUtility implements DataInitialize
 		getContext().executeInsert(USER_ALICE);
 	}
 
-	private void insertSamplePersons() {
-		getContext().executeInsert(PERSON_ALICE);
-		getContext().executeInsert(PERSON_BOB);
+	private void insertSampleDocuments() {
+		getContext().executeInsert(DOCUMENT_ALICE_1);
+		
+		// load image file from src/main/resource folder into database
+		byte [] content = loadResourceBytes("file/" + DOCUMENT_LOGO_NAME);
+		DOCUMENT_ALICE_2.setContent(content);
+		DOCUMENT_ALICE_2.setSize(BigDecimal.valueOf(content.length));
+		getContext().executeInsert(DOCUMENT_ALICE_2);
 	}
 
 	protected DSLContext getContext() {
 		return config.getContext();
+	}
+	
+	private static BigDecimal getSize(byte [] content) {
+		return content != null ? BigDecimal.valueOf(content.length) : BigDecimal.ZERO;
+	}
+	
+	private byte [] loadResourceBytes(String fileName) {
+		ClassLoader classLoader = getClass().getClassLoader();
+		File file = new File(classLoader.getResource(fileName).getFile());
+		byte [] content = null;
+		
+		try {
+			content = Files.readAllBytes(file.toPath());
+		} 
+		catch (IOException e) {
+			LOG.error("Exception readding file {}", fileName, e);
+		}
+		
+		return content;
 	}
 }

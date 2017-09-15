@@ -16,10 +16,9 @@ import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.database.table.TableUtility;
 import com.acme.application.database.table.TextTable;
 import com.acme.application.server.ServerSession;
-import com.acme.application.server.helloworld.HelloWorldServiceTest;
 
 @RunWith(ServerTestRunner.class)
-@RunWithSubject(HelloWorldServiceTest.SUBJECT_NAME)
+@RunWithSubject("anonymous")
 @RunWithServerSession(ServerSession.class)
 public class TextProviderServiceTest {
 

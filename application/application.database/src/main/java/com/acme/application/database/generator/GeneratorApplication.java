@@ -92,7 +92,7 @@ public class GeneratorApplication {
 			Statement statement = config.getConnection().createStatement();
 
 			// create database tables
-			for (DatabaseTable table : BEANS.all(DatabaseTable.class)) {
+			for (IDatabaseTable table : BEANS.all(IDatabaseTable.class)) {
 				table.setConfig(config);
 				statement.executeUpdate(table.getCreateSQL());
 			}
@@ -105,7 +105,7 @@ public class GeneratorApplication {
 	}
 
 	public static void teardownDatabase(Config config) {
-		for (DatabaseTable table : BEANS.all(DatabaseTable.class)) {
+		for (IDatabaseTable table : BEANS.all(IDatabaseTable.class)) {
 			table.setConfig(config);
 			table.drop();
 		}

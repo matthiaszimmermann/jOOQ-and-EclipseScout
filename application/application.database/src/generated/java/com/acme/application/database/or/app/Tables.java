@@ -5,6 +5,7 @@ package com.acme.application.database.or.app;
 
 
 import com.acme.application.database.or.app.tables.Code;
+import com.acme.application.database.or.app.tables.Document;
 import com.acme.application.database.or.app.tables.Person;
 import com.acme.application.database.or.app.tables.Role;
 import com.acme.application.database.or.app.tables.RolePermission;
@@ -33,6 +34,11 @@ public class Tables {
      * The table <code>APP.CODE</code>.
      */
     public static final Code CODE = com.acme.application.database.or.app.tables.Code.CODE;
+
+    /**
+     * The table <code>APP.DOCUMENT</code>.
+     */
+    public static final Document DOCUMENT = com.acme.application.database.or.app.tables.Document.DOCUMENT;
 
     /**
      * The table <code>APP.PERSON</code>.

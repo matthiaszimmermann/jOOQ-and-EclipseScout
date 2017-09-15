@@ -13,6 +13,8 @@ import org.eclipse.scout.rt.platform.util.ObjectUtility;
 import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
+import org.eclipse.scout.rt.shared.services.lookup.ILookupRow;
+import org.eclipse.scout.rt.shared.services.lookup.LookupRow;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,7 +314,7 @@ public class UserService extends BaseService implements IUserService {
 		getAll()
 		.stream()
 		.forEach(user -> {
-			PersonRecord person = BEANS.get(PersonService.class).get(user.getPersonId());
+			PersonRecord person = getPerson(user);
 			boolean isRoot = getRoles(user).contains(RoleTable.ROOT);
 			String username = user.getUsername();
 
@@ -325,6 +327,38 @@ public class UserService extends BaseService implements IUserService {
 		});
 
 		return pageData;
+	}
+	
+	public List<? extends ILookupRow<String>> getLookupRows(boolean activeOnly) {
+		List<ILookupRow<String>> list = new ArrayList<>();
+		
+		getAll()
+		.stream()
+		.filter(user -> !activeOnly || (activeOnly && user.getActive()))
+		.forEach(user -> {
+			list.add(new LookupRow<>(user.getUsername(), getPersonDisplayName(user)));
+		});
+		
+		return list;
+	}
+
+	private String getPersonDisplayName(UserRecord user) {
+		PersonRecord person = getPerson(user);
+		String displayName = ObjectUtility.nvl(person.getFirstName(), "");
+		
+		if(StringUtility.hasText(person.getLastName())) {
+			if(StringUtility.hasText(displayName)) {
+				return displayName + " " + person.getLastName();
+			}
+			
+			return person.getLastName();
+		}
+		
+		return displayName;
+	}
+
+	private PersonRecord getPerson(UserRecord user) {
+		return BEANS.get(PersonService.class).get(user.getPersonId());
 	}
 
 	@Override

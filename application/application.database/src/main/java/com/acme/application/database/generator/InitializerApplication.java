@@ -23,7 +23,7 @@ public class InitializerApplication {
 			schema.initialize();
 			
 			// insert initial data and sample data
-			DataInitializer initializer = BEANS.get(DataInitializer.class);
+			IDataInitializer initializer = BEANS.get(IDataInitializer.class);
 			initializer.setConfig(config);
 			initializer.initialize();
 

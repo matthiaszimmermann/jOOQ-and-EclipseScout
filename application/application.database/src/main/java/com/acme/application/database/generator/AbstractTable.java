@@ -6,7 +6,7 @@ import org.eclipse.scout.rt.platform.exception.ProcessingException;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
-public abstract class AbstractTable implements DatabaseTable {
+public abstract class AbstractTable implements IDatabaseTable {
 
 	public static String PRIMARY_KEY_PREFIX = "PK_";
 

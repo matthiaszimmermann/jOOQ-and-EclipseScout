@@ -19,9 +19,9 @@ import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 
 import com.acme.application.client.common.AbstractExportableTable;
-import com.acme.application.client.common.FontAwesomeIcons;
 import com.acme.application.client.role.RoleTablePage.Table;
 import com.acme.application.client.text.TextForm;
+import com.acme.application.shared.FontAwesomeIcons;
 import com.acme.application.shared.role.CreateRolePermission;
 import com.acme.application.shared.role.IRoleService;
 import com.acme.application.shared.role.ReadRolePagePermission;
@@ -168,7 +168,7 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 			protected void execAction() {
 				String roleId = getIdColumn().getSelectedValue();
 
-				TextForm form = BEANS.get(TextForm.class);
+				TextForm form = new TextForm();
 				form.setKey(roleId);
 				form.startModify();
 				form.waitFor();

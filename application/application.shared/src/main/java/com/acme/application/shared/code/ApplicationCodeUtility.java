@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 public class ApplicationCodeUtility {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ApplicationCodeUtility.class);
+	private static final String CODES_PACKAGE_PREFIX = "com.acme.application.shared";
 
 	/**
 	 * Generates and returns a new code id.
@@ -105,5 +106,9 @@ public class ApplicationCodeUtility {
 	 */
 	public static void reload(Class<? extends IApplicationCodeType> clazz) {
 		CODES.reloadCodeType(clazz);
+	}
+	
+	public static void reloadAll() {
+		CODES.getAllCodeTypes(CODES_PACKAGE_PREFIX);
 	}
 }

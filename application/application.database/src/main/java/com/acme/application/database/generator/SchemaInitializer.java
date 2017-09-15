@@ -23,7 +23,7 @@ public class SchemaInitializer {
 		try {
 			Statement statement = config.getConnection().createStatement();
 
-			for (DatabaseTable table : BEANS.all(DatabaseTable.class)) {
+			for (IDatabaseTable table : BEANS.all(IDatabaseTable.class)) {
 				table.setConfig(config);
 				statement.executeUpdate(table.getCreateSQL());
 			}

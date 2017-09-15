@@ -4,10 +4,11 @@ import org.eclipse.scout.rt.platform.ApplicationScoped;
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
 import org.jooq.impl.SQLDataType;
+import org.jooq.types.UInteger;
 import org.slf4j.Logger;
 
 @ApplicationScoped
-public interface DatabaseTable {
+public interface IDatabaseTable {
 
 	public static final String ID = "ID";
 	public static final DataType<String> TYPE_ID = SQLDataType.VARCHAR.length(36).nullable(false);
@@ -24,6 +25,12 @@ public interface DatabaseTable {
 	public static final DataType<String> TYPE_STRING_M = SQLDataType.VARCHAR.length(128);
 	public static final DataType<String> TYPE_STRING_L = SQLDataType.VARCHAR.length(512);
 	public static final DataType<String> TYPE_STRING_XL = SQLDataType.VARCHAR.length(1024);
+	
+	public static final DataType<byte[]> TYPE_BLOB = SQLDataType.BLOB;
+	public static final DataType<UInteger> TYPE_SIZE = SQLDataType.INTEGERUNSIGNED;
+	
+	public static String DEFAULT_TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+	public static final DataType<String> TYPE_TIMESTAMP = SQLDataType.VARCHAR.length(DEFAULT_TIMESTAMP_PATTERN.length());
 	
 	public static final SQLDialect SQL_DIALECT = GeneratorApplication.DB_DIALECT;
 

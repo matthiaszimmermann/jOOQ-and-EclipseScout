@@ -54,7 +54,7 @@ public class SetupTest {
 
 		GeneratorApplication.setupDatabase(config);
 
-		DataInitializer initializer = BEANS.get(DataInitializer.class);
+		IDataInitializer initializer = BEANS.get(IDataInitializer.class);
 		initializer.setConfig(config);
 		initializer.initialize();		
 	}

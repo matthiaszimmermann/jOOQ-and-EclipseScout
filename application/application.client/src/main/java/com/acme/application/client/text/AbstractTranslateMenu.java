@@ -8,7 +8,7 @@ import org.eclipse.scout.rt.client.ui.action.menu.TableMenuType;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 
-import com.acme.application.client.common.FontAwesomeIcons;
+import com.acme.application.shared.FontAwesomeIcons;
 
 public abstract class AbstractTranslateMenu extends AbstractMenu {
 

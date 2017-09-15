@@ -1,4 +1,4 @@
-package com.acme.application.client.common;
+package com.acme.application.shared;
 
 import org.eclipse.scout.rt.shared.AbstractIcons;
 

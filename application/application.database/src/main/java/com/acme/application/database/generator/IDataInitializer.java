@@ -3,7 +3,7 @@ package com.acme.application.database.generator;
 import org.eclipse.scout.rt.platform.ApplicationScoped;
 
 @ApplicationScoped
-public interface DataInitializer {
+public interface IDataInitializer {
 
 	Config getConfig();
 	void setConfig(Config config);

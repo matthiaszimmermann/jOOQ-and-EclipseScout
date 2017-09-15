@@ -14,10 +14,10 @@ import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 
 import com.acme.application.client.admin.AdminOutline;
-import com.acme.application.client.common.FontAwesomeIcons;
 import com.acme.application.client.search.SearchOutline;
 import com.acme.application.client.user.ProfileForm;
 import com.acme.application.client.work.WorkOutline;
+import com.acme.application.shared.FontAwesomeIcons;
 import com.acme.application.shared.Icons;
 import com.acme.application.shared.ViewAdminOutlinePermission;
 
