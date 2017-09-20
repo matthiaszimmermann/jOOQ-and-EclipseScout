@@ -34,8 +34,8 @@ public class TextDbProviderService implements ITextProviderService {
     // fall back to language (without country)
     if (locale != null) {
       String[] part = locale.toLanguageTag().split("[-_]");
-      locale = TextService.convertLocale(part[0]);
-      text = translationCache.get(TextService.toId(localeId, key));
+      String localeIdLanguageOnly = part[0];
+      text = translationCache.get(TextService.toId(localeIdLanguageOnly, key));
 
       if (StringUtility.hasText(text)) {
         return text;

@@ -31,7 +31,7 @@ public abstract class AbstractExportableTable extends AbstractTable {
 
 		@Override
 		protected String getConfiguredIconId() {
-			return FontAwesomeIcons.fa_shareSquareO;
+			return FontAwesomeIcons.fa_fileExcelO;
 		}
 		
 		@Override

@@ -86,7 +86,7 @@ public class User extends TableImpl<UserRecord> {
      */
     public User(String alias) {
         this(alias, USER);
-    }
+    }	
 
     private User(String alias, Table<UserRecord> aliased) {
         this(alias, aliased, null);

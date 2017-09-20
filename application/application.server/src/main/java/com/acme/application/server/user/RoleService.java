@@ -3,6 +3,7 @@ package com.acme.application.server.user;
 import java.security.Permission;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.eclipse.scout.rt.platform.BEANS;
@@ -19,14 +20,15 @@ import com.acme.application.database.or.app.tables.RolePermission;
 import com.acme.application.database.or.app.tables.records.RolePermissionRecord;
 import com.acme.application.database.or.app.tables.records.RoleRecord;
 import com.acme.application.database.table.RoleTable;
+import com.acme.application.server.ServerSession;
 import com.acme.application.server.common.BaseService;
 import com.acme.application.server.security.PermissionService;
 import com.acme.application.shared.role.IRoleService;
 import com.acme.application.shared.role.PermissionTablePageData;
 import com.acme.application.shared.role.RoleFormData;
-import com.acme.application.shared.role.RoleTablePageData;
 import com.acme.application.shared.role.RoleFormData.PermissionTable;
 import com.acme.application.shared.role.RoleFormData.PermissionTable.PermissionTableRowData;
+import com.acme.application.shared.role.RoleTablePageData;
 import com.acme.application.shared.role.RoleTablePageData.RoleTableRowData;
 
 public class RoleService extends BaseService implements IRoleService {
@@ -156,6 +158,7 @@ public class RoleService extends BaseService implements IRoleService {
 	@Override
 	public AbstractTablePageData getRoleTableData(SearchFilter filter) {
 		RoleTablePageData pageData = new RoleTablePageData();
+		Locale locale = ServerSession.get().getLocale();
 
 		getAll()
 		.stream()
@@ -164,7 +167,7 @@ public class RoleService extends BaseService implements IRoleService {
 
 			RoleTableRowData row = pageData.addRow();
 			row.setId(roleName);
-			row.setName(TEXTS.getWithFallback(roleName, roleName));
+			row.setName(TEXTS.getWithFallback(locale, roleName, roleName));
 		});
 
 		return pageData;
@@ -174,6 +177,7 @@ public class RoleService extends BaseService implements IRoleService {
 	@Override
 	public AbstractTablePageData getPermissionTableData(SearchFilter filter) {
 		PermissionTablePageData pageData = new PermissionTablePageData();
+		Locale locale = ServerSession.get().getLocale();
 		
 		BEANS.get(PermissionService.class)
 		.getAllPermissionClasses()
@@ -183,8 +187,8 @@ public class RoleService extends BaseService implements IRoleService {
 			String id = permission.getName();
 			String group = permission.getPackage().getName();
 			row.setId(id);
-			row.setGroup(TEXTS.getWithFallback(group, group));
-			row.setText(TEXTS.getWithFallback(id, id));
+			row.setGroup(TEXTS.getWithFallback(locale, group, group));
+			row.setText(TEXTS.getWithFallback(locale, id, id));
 		});
 		
 		return pageData;

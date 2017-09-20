@@ -1,5 +1,6 @@
 package com.acme.application.client.code;
 
+import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.scout.rt.client.dto.Data;
@@ -20,6 +21,7 @@ import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.acme.application.client.ClientSession;
 import com.acme.application.client.code.ApplicationCodeForm.DisplayMode;
 import com.acme.application.client.code.ApplicationCodeTablePage.Table;
 import com.acme.application.client.common.AbstractExportableTable;
@@ -57,7 +59,8 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 	@Override
 	protected void execLoadData(SearchFilter filter) {
 		ApplicationCodePageData pageData = new ApplicationCodePageData();
-		String typeText = TEXTS.getWithFallback(codeType.getId(), codeType.getId());
+		Locale locale = ClientSession.get().getLocale();
+		String typeText = TEXTS.get(locale, codeType.getId(), codeType.getId());
 		
 		codeType
 		.getCodes(false)
@@ -68,7 +71,7 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 			ApplicationCodeRowData row = pageData.addRow();
 			row.setId(id);
 			row.setType(typeText);
-			row.setText(TEXTS.getWithFallback(id, id));
+			row.setText(TEXTS.getWithFallback(locale, id, id));
 			row.setActive(code.isActive());
 		});
 

@@ -1,5 +1,7 @@
 package com.acme.application.client;
 
+import java.util.Locale;
+
 import org.eclipse.scout.rt.client.AbstractClientSession;
 import org.eclipse.scout.rt.client.IClientSession;
 import org.eclipse.scout.rt.client.session.ClientSessionProvider;
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.acme.application.shared.code.ApplicationCodeUtility;
+import com.acme.application.shared.text.ITextService;
 import com.acme.application.shared.user.IUserService;
 
 /**
@@ -31,20 +34,21 @@ public class ClientSession extends AbstractClientSession {
 
 	@Override
 	protected void execLoadSession() {
-		LOG.info("Created a new session for {}", getUserId());
-		
-		setUserLocale();
-		initializeCodeCache();
+		initializeLocaleTextsAndCodes();
 		setDesktop(new Desktop());
+		
+		LOG.info("Created new client session for '{}' with locale '{}'", getUserId(), getLocale());
 	}
 
-	private void setUserLocale() {
-		// forces sync of shared variables for client and server session
-		BEANS.get(IPingService.class).ping("");
-		setLocale(BEANS.get(IUserService.class).getLocale(getUserId()));
-	}
-
-	private void initializeCodeCache() {
+	public void initializeLocaleTextsAndCodes() {
+		forceSharedVariableSync();		
+		Locale userLocale = BEANS.get(IUserService.class).getLocale(getUserId());
+		setLocale(userLocale);
+		BEANS.get(ITextService.class).invalidateCache();
 		ApplicationCodeUtility.reloadAll();
+	}
+
+	private void forceSharedVariableSync() {
+		BEANS.get(IPingService.class).ping("");
 	}
 }

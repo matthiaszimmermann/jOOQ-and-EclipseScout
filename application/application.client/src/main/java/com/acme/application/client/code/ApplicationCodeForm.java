@@ -1,5 +1,7 @@
 package com.acme.application.client.code;
 
+import java.security.Permission;
+
 import org.eclipse.scout.rt.client.dto.FormData;
 import org.eclipse.scout.rt.client.ui.form.AbstractForm;
 import org.eclipse.scout.rt.client.ui.form.IForm;
@@ -22,8 +24,10 @@ import com.acme.application.client.common.AbstractDirtyFormHandler;
 import com.acme.application.client.role.RoleForm.MainBox.RoleBox;
 import com.acme.application.client.role.RoleForm.MainBox.RoleBox.PermissionTableField;
 import com.acme.application.shared.code.ApplicationCodeFormData;
+import com.acme.application.shared.code.ApplicationCodeUtility;
 import com.acme.application.shared.code.CreateApplicationCodePermission;
 import com.acme.application.shared.code.IApplicationCodeService;
+import com.acme.application.shared.code.IApplicationCodeType;
 import com.acme.application.shared.code.UpdateApplicationCodePermission;
 
 @FormData(value = ApplicationCodeFormData.class, sdkCommand = FormData.SdkCommand.CREATE)
@@ -197,26 +201,25 @@ public class ApplicationCodeForm extends AbstractForm {
 
 		@Override
 		protected void execLoad() {
-			setEnabledPermission(new UpdateApplicationCodePermission());
-
-			ApplicationCodeFormData formData = new ApplicationCodeFormData();
-			exportFormData(formData);
-			formData = BEANS.get(IApplicationCodeService.class).load(formData);
-			importFormData(formData);
-
-			getForm().setSubTitle(calculateSubTitle());
+//			setEnabledPermission(new UpdateApplicationCodePermission());
+//
+//			ApplicationCodeFormData formData = new ApplicationCodeFormData();
+//			exportFormData(formData);
+//			formData = BEANS.get(IApplicationCodeService.class).load(formData);
+//			importFormData(formData);
+//
+//			getForm().setSubTitle(calculateSubTitle());
+			load(new UpdateApplicationCodePermission());
 		}
 
 		@Override
 		protected void execStore() {
-			ApplicationCodeFormData formData = new ApplicationCodeFormData();
-			exportFormData(formData);
-			formData = BEANS.get(IApplicationCodeService.class).store(formData);
+			store();
 		}
 
 		@Override
 		protected void execDirtyStatusChanged(boolean dirty) {
-			getForm().setSubTitle(calculateSubTitle());
+			setSubTitle(calculateSubTitle());
 		}
 
 		@Override
@@ -241,14 +244,33 @@ public class ApplicationCodeForm extends AbstractForm {
 
 		@Override
 		protected void execStore() {
-			ApplicationCodeFormData formData = new ApplicationCodeFormData();
-			exportFormData(formData);
-			formData = BEANS.get(IApplicationCodeService.class).store(formData);
+			store();
 		}
 
 		@Override
 		protected void execDirtyStatusChanged(boolean dirty) {
 			getForm().setSubTitle(calculateSubTitle());
 		}
+	}
+
+	private void load(Permission permission)  {
+		setEnabledPermission(permission);
+
+		ApplicationCodeFormData formData = new ApplicationCodeFormData();
+		exportFormData(formData);
+		formData = BEANS.get(IApplicationCodeService.class).load(formData);
+		importFormData(formData);
+
+		setSubTitle(calculateSubTitle());
+	}
+	
+	private void store()  {
+		ApplicationCodeFormData formData = new ApplicationCodeFormData();
+		exportFormData(formData);
+		formData = BEANS.get(IApplicationCodeService.class).store(formData);
+		
+		String typeId = formData.getCodeTypeId();
+		IApplicationCodeType type = ApplicationCodeUtility.getCodeType(typeId);
+		ApplicationCodeUtility.reload(type.getClass());
 	}
 }

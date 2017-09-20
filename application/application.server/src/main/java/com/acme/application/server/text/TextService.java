@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.scout.rt.platform.BEANS;
+import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.jooq.DSLContext;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.acme.application.database.or.app.tables.Text;
 import com.acme.application.database.or.app.tables.records.TextRecord;
 import com.acme.application.database.table.TextTable;
+import com.acme.application.server.ServerSession;
 import com.acme.application.server.common.BaseService;
 import com.acme.application.shared.text.ITextService;
 import com.acme.application.shared.text.TextTablePageData;
@@ -177,16 +179,19 @@ public class TextService extends BaseService implements ITextService {
 	@Override
 	public TextTablePageData getTextTableData(SearchFilter filter) {
 		TextTablePageData pageData = new TextTablePageData();
+		Locale locale = ServerSession.get().getLocale();
 
 		getAll()
 		.stream()
 		.forEach(text -> {
 			String key = text.getKey();
+			String localeId = text.getLocale();
+			String textId = text.getText();
 
 			TextTableRowData row = pageData.addRow();
 			row.setKey(key);
-			row.setLocale(text.getLocale());
-			row.setText(text.getText());
+			row.setLocale(TEXTS.getWithFallback(locale, localeId, localeId));
+			row.setText(TEXTS.getWithFallback(locale, textId, textId));
 		});
 
 		return pageData;

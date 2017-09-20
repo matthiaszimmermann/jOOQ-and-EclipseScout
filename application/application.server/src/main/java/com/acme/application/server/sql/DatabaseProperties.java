@@ -6,69 +6,59 @@ import org.eclipse.scout.rt.platform.config.AbstractBooleanConfigProperty;
 import org.eclipse.scout.rt.platform.config.AbstractStringConfigProperty;
 import org.eclipse.scout.rt.platform.config.AbstractSubjectConfigProperty;
 
-// tag::structure[]
+import com.acme.application.server.ServerSession;
+
 public class DatabaseProperties {
 
-  public static class DatabaseAutoCreateProperty extends AbstractBooleanConfigProperty {
-    // defines default value and key
+	public static class DatabaseAutoCreateProperty extends AbstractBooleanConfigProperty {
 
-    @Override
-    protected Boolean getDefaultValue() {
-      return Boolean.TRUE; // <1>
-    }
+		@Override
+		protected Boolean getDefaultValue() {
+			return Boolean.TRUE;
+		}
 
-    @Override
-    public String getKey() {
-      return "contacts.database.autocreate"; // <2>
-    }
-  }
+		@Override
+		public String getKey() {
+			return "contacts.database.autocreate";
+		}
+	}
 
-  public static class DatabaseAutoPopulateProperty extends AbstractBooleanConfigProperty {
-    // defines default value and key
-    // end::structure[]
+	public static class DatabaseAutoPopulateProperty extends AbstractBooleanConfigProperty {
 
-    @Override
-    protected Boolean getDefaultValue() {
-      return Boolean.TRUE;
-    }
+		@Override
+		protected Boolean getDefaultValue() {
+			return Boolean.TRUE;
+		}
 
-    @Override
-    public String getKey() {
-      return "contacts.database.autopopulate";
-    }
-    // tag::structure[]
-  }
+		@Override
+		public String getKey() {
+			return "contacts.database.autopopulate";
+		}
+	}
 
-  public static class JdbcMappingNameProperty extends AbstractStringConfigProperty {
-    // defines default value and key
-    // end::structure[]
+	public static class JdbcMappingNameProperty extends AbstractStringConfigProperty {
 
-    @Override
-    protected String getDefaultValue() {
-      return "jdbc:derby:memory:contacts-database";
-    }
+		@Override
+		protected String getDefaultValue() {
+			return "jdbc:derby:memory:contacts-database";
+		}
 
-    @Override
-    public String getKey() {
-      return "contacts.database.jdbc.mapping.name";
-    }
-    // tag::structure[]
-  }
+		@Override
+		public String getKey() {
+			return "contacts.database.jdbc.mapping.name";
+		}
+	}
 
-  public static class SuperUserSubjectProperty extends AbstractSubjectConfigProperty {
-    // defines default value and key
-    // end::structure[]
+	public static class SuperUserSubjectProperty extends AbstractSubjectConfigProperty {
 
-    @Override
-    protected Subject getDefaultValue() {
-      return convertToSubject("system");
-    }
+		@Override
+		protected Subject getDefaultValue() {
+			return convertToSubject(ServerSession.SUPER_USER_ID);
+		}
 
-    @Override
-    public String getKey() {
-      return "contacts.superuser";
-    }
-    // tag::structure[]
-  }
+		@Override
+		public String getKey() {
+			return "contacts.superuser";
+		}
+	}
 }
-// end::structure[]

@@ -335,6 +335,9 @@ public class ProfileForm extends AbstractForm {
 			ProfileFormData formData = new ProfileFormData();
 			exportFormData(formData);
 			service.store(formData);
+			
+			// FIXME does not live refresh language to new locale
+			ClientSession.get().initializeLocaleTextsAndCodes();
 		}
 	}
 

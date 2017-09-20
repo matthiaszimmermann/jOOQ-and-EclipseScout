@@ -1,6 +1,7 @@
 package com.acme.application.server.code;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.eclipse.scout.rt.platform.BEANS;
@@ -18,6 +19,7 @@ import com.acme.application.database.generator.Config;
 import com.acme.application.database.or.app.tables.Code;
 import com.acme.application.database.or.app.tables.records.CodeRecord;
 import com.acme.application.database.or.app.tables.records.TextRecord;
+import com.acme.application.server.ServerSession;
 import com.acme.application.server.common.BaseService;
 import com.acme.application.server.text.TextService;
 import com.acme.application.shared.code.ApplicationCodeFormData;
@@ -47,6 +49,7 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 	public ApplicationCodePageData getApplicationCodeTableData(Class<? extends IApplicationCodeType> codeTypeName) {
 		ApplicationCodePageData pageData = new ApplicationCodePageData();
 		IApplicationCodeType codeType = ApplicationCodeUtility.getCodeType(codeTypeName);
+		Locale locale = ServerSession.get().getLocale();
 
 		// enforce reload from database
 		loadCodeRowsFromDatabase(codeType.getId())
@@ -55,8 +58,8 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 			String codeId = code.getKey();
 			ApplicationCodeRowData row = pageData.addRow();	
 			row.setId(codeId);
-			row.setType(TEXTS.getWithFallback(codeType.getId(), codeType.getId()));
-			row.setText(TEXTS.getWithFallback(codeId, codeId));
+			row.setType(TEXTS.get(locale, codeType.getId(), codeType.getId()));
+			row.setText(TEXTS.get(locale, codeId, codeId));
 			row.setActive(code.isActive());
 		});
 
@@ -167,12 +170,13 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 	@Override
 	public List<ICodeRow<String>> loadCodeRowsFromDatabase(String codeTypeId) {
 		LOG.info("(Re)load dynamic codes from database for code id " + codeTypeId);
+		Locale locale = ServerSession.get().getLocale();
 
 		return getCodeRecords(codeTypeId)
 				.stream()
 				.map(code -> {
 					String id = code.getId();
-					String text = TEXTS.getWithFallback(id, id);
+					String text = TEXTS.get(locale, id, id);
 					return new CodeRow<String>(id, text)
 							.withIconId(code.getIcon())
 							.withActive(code.getActive());
