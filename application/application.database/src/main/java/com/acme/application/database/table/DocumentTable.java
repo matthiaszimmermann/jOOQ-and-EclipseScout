@@ -4,9 +4,7 @@ import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.AbstractTable;
-
-public class DocumentTable extends AbstractTable {
+public class DocumentTable extends AbstractCoreTable {
 
 	public static final String TABLE = "DOCUMENT";
 	public static final String NAME = "NAME";
@@ -15,17 +13,16 @@ public class DocumentTable extends AbstractTable {
 	public static final String CONTENT = "CONTENT";
 	public static final String UPLOADED = "UPLOADED";
 	public static final String USER_ID = "USER_ID";
-	
+
 	@Override
-	public String getTableName() {
+	public String getName() {
 		return TABLE;
 	}
 
 	@Override
-	public String getCreateSQL() {
-
+	public String createSQLInternal() {
 		return getContext()
-				.createTable(getTableName())
+				.createTable(getName())
 				.column(ID, TYPE_ID)
 				.column(NAME, TYPE_STRING_M)
 				.column(TYPE, TYPE_STRING_XS)

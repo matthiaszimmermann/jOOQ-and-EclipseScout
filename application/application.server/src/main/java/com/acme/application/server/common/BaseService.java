@@ -5,7 +5,7 @@ import org.eclipse.scout.rt.platform.BEANS;
 import org.jooq.DSLContext;
 
 import com.acme.application.database.generator.Config;
-import com.acme.application.server.sql.SqlService;
+import com.acme.application.server.sql.MsSqlService;
 
 @ApplicationScoped
 public class BaseService {
@@ -23,7 +23,8 @@ public class BaseService {
 	
 	protected Config getConfig() {
 		if(config == null) {
-			config = BEANS.get(SqlService.class).getConfig();
+//			config = BEANS.get(DerbySqlService.class).getConfig();
+			config = BEANS.get(MsSqlService.class).getConfig();
 		}
 		
 		return config;

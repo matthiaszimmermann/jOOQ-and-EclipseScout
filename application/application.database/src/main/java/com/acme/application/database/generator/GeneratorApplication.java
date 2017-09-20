@@ -4,11 +4,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.scout.rt.platform.ApplicationScoped;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.exception.ProcessingException;
+import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.jooq.SQLDialect;
+import org.jooq.conf.MappedSchema;
+import org.jooq.conf.RenderMapping;
+import org.jooq.conf.Settings;
 import org.jooq.util.GenerationTool;
 import org.jooq.util.jaxb.Configuration;
 import org.jooq.util.jaxb.CustomType;
@@ -16,9 +22,16 @@ import org.jooq.util.jaxb.Database;
 import org.jooq.util.jaxb.ForcedType;
 import org.jooq.util.jaxb.Generator;
 import org.jooq.util.jaxb.Target;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.acme.application.database.or.app.tables.Code;
+import com.acme.application.database.table.CodeTable;
 
 @ApplicationScoped
 public class GeneratorApplication {
+
+	private static final Logger LOG = LoggerFactory.getLogger(GeneratorApplication.class);
 
 	public static final String OUTPUT_DIRECTORY = "src/generated/java";
 	public static final String OUTPUT_PACKAGE = "com.acme.application.database.or";
@@ -91,16 +104,55 @@ public class GeneratorApplication {
 		try {
 			Statement statement = config.getConnection().createStatement();
 
+			// create database schemas
+			List<String> schemas = DatabaseUtility.getSchemaNames(config);
+			for (IDatabaseSchema schema : BEANS.all(IDatabaseSchema.class)) {
+				createDatabaseObject(config, statement, schemas, schema);
+			}
+
 			// create database tables
+			List<String> tables = DatabaseUtility.getTableNames(config);
+			// TODO cleanup (for debugging only)
+			//			List<String> tables = new ArrayList<String>();
 			for (IDatabaseTable table : BEANS.all(IDatabaseTable.class)) {
-				table.setConfig(config);
-				statement.executeUpdate(table.getCreateSQL());
+				createDatabaseObject(config, statement, tables, table);
 			}
 
 			statement.close();
 		}
 		catch (Exception e) {
-			throw new ProcessingException("failed to create database schema");
+			LOG.error("Failed to create database schema: {}", e.getMessage());
+			throw new ProcessingException("Failed to create database schema", e);
+		}
+	}
+
+	private static void createDatabaseObject(Config config, Statement statement, List<String> objects,
+			IDatabaseObject object) throws SQLException 
+	{
+		Config localConfig = new Config(config);
+
+		if(IDatabaseTable.class.isInstance(object)) {
+			IDatabaseTable table = (IDatabaseTable) object;
+			String schema = table.getSchemaName();
+
+			if(StringUtility.hasText(schema)) {
+				Settings settings = new Settings()
+						.withRenderMapping(new RenderMapping()
+								.withSchemata(
+										new MappedSchema().withInput("").withOutput(schema)));
+
+				localConfig.withSettings(settings);
+			}
+		}
+
+		String name = object.getName();
+		if(!objects.contains(name)) {
+			object.setConfig(localConfig);
+			String sql = object.getCreateSQL();
+			statement.executeUpdate(sql);
+		}
+		else {
+			object.getLogger().warn("Database object {} already exists, nothing created", name);					
 		}
 	}
 

@@ -28,20 +28,42 @@
 		</dependency>
 
 		<!-- JOOQ library -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.jooq</groupId> -->
+<!-- 			<artifactId>jooq</artifactId> -->
+<!-- 			<version>3.9.0</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.jooq</groupId> -->
+<!-- 			<artifactId>jooq-meta</artifactId> -->
+<!-- 			<version>3.9.0</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.jooq</groupId> -->
+<!-- 			<artifactId>jooq-codegen</artifactId> -->
+<!-- 			<version>3.9.0</version> -->
+<!-- 		</dependency> -->
 		<dependency>
-			<groupId>org.jooq</groupId>
+			<groupId>org.jooq.trial</groupId>
 			<artifactId>jooq</artifactId>
-			<version>3.9.0</version>
+			<version>3.9.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jooq</groupId>
+			<groupId>org.jooq.trial</groupId>
 			<artifactId>jooq-meta</artifactId>
-			<version>3.9.0</version>
+			<version>3.9.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jooq</groupId>
+			<groupId>org.jooq.trial</groupId>
 			<artifactId>jooq-codegen</artifactId>
-			<version>3.9.0</version>
+			<version>3.9.5</version>
+		</dependency>
+
+		<!-- MS SQL Server -->
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>6.2.1.jre8</version>
 		</dependency>
 
 		<!-- Derby DB -->

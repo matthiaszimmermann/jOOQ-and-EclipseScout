@@ -6,28 +6,25 @@ import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.AbstractTable;
-
-public class TextTable extends AbstractTable {
+public class TextTable extends AbstractCoreTable {
 
 	public static final String TABLE = "TEXT";
 	public static final String KEY = "KEY";
 	public static final String LOCALE = "LOCALE";
 	public static final String TEXT = "TEXT";
-	
+
 	public static final String LOCALE_DEFAULT = Locale.ROOT.toLanguageTag();
-	
+
 
 	@Override
-	public String getTableName() {
+	public String getName() {
 		return TABLE;
 	}
 
 	@Override
-	public String getCreateSQL() {
-
+	public String createSQLInternal() {
 		return getContext()
-				.createTable(getTableName())
+				.createTable(getName())
 				.column(KEY, TYPE_STRING_M.nullable(false))
 				.column(LOCALE, TYPE_STRING_S.nullable(false))
 				.column(TEXT, TYPE_STRING_L.nullable(false))

@@ -33,7 +33,8 @@ public class DatabaseSetupService extends BaseService {
 
 					@Override
 					public void run() throws Exception {
-						Config config = BEANS.get(SqlService.class).getConfig();
+						Config config = BEANS.get(MsSqlService.class).getConfig();
+//						Config config = BEANS.get(DerbySqlService.class).getConfig();
 						createDatabaseScheme(config);
 						populateDatabase(config);
 						initializeTexts();

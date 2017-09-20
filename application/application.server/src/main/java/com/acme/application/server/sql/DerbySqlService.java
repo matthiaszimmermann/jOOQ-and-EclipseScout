@@ -13,7 +13,7 @@ import com.acme.application.database.generator.Config;
 import com.acme.application.server.sql.DatabaseProperties.DatabaseAutoCreateProperty;
 import com.acme.application.server.sql.DatabaseProperties.JdbcMappingNameProperty;
 
-public class SqlService extends AbstractDerbySqlService {
+public class DerbySqlService extends AbstractDerbySqlService {
 
 	private Config config = null;
 
@@ -23,7 +23,7 @@ public class SqlService extends AbstractDerbySqlService {
 
 		// add create attribute if we need to autocreate the db
 		if (CONFIG.getPropertyValue(DatabaseAutoCreateProperty.class)) {
-			return mappingName + ";create=true"; // <1>
+			return mappingName + ";create=true";
 		}
 
 		return mappingName;

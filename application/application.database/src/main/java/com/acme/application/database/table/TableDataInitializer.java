@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import org.jooq.DSLContext;
+import org.jooq.conf.MappedSchema;
+import org.jooq.conf.RenderMapping;
+import org.jooq.exception.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +19,7 @@ import com.acme.application.database.generator.IDataInitializer;
 import com.acme.application.database.or.app.tables.records.CodeRecord;
 import com.acme.application.database.or.app.tables.records.DocumentRecord;
 import com.acme.application.database.or.app.tables.records.PersonRecord;
+import com.acme.application.database.or.app.tables.records.RolePermissionRecord;
 import com.acme.application.database.or.app.tables.records.RoleRecord;
 import com.acme.application.database.or.app.tables.records.TextRecord;
 import com.acme.application.database.or.app.tables.records.TypeRecord;
@@ -115,21 +119,21 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	}
 
 	private void insertUserRoles() {
-		getContext().executeInsert(USER_ROLE_ROOT);
+		insert(USER_ROLE_ROOT);
 	}
 
 	private void insertRoles() {
-		getContext().executeInsert(ROLE_ROOT);
-		getContext().executeInsert(ROLE_USER);
-		getContext().executeInsert(ROLE_GUEST);
+		insert(ROLE_ROOT);
+		insert(ROLE_USER);
+		insert(ROLE_GUEST);
 	}
 
 	private void insertUsers() {
-		getContext().executeInsert(USER_ROOT);
+		insert(USER_ROOT);
 	}
 
 	private void insertPersons() {
-		getContext().executeInsert(PERSON_ROOT);
+		insert(PERSON_ROOT);
 	}
 
 	/**
@@ -144,39 +148,38 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	}
 
 	private void insertFileCodeType() {
-		getContext().executeInsert(TYPE_FILE);
+		insert(TYPE_FILE);
 	}
 
 	private void insertSexCodeType() {
-		getContext().executeInsert(TYPE_SEX);
-		getContext().executeInsert(CODE_UNDEFINED);
+		insert(TYPE_SEX);
+		insert(CODE_UNDEFINED);
 	}
 
 	private void insertLocaleCodeType() {
-		getContext().executeInsert(TYPE_LOCALE);
+		insert(TYPE_LOCALE);
 		Arrays.stream(Locale.getAvailableLocales())
 		.forEach(locale -> { 
 			CodeRecord code = new CodeRecord(locale.toLanguageTag(), TYPE_ID_LOCALE, null, null, true);
-			getContext().executeInsert(code);
+			insert(code);
 			
 			Locale locDefault = Locale.forLanguageTag(TextTable.LOCALE_DEFAULT);
 			TextRecord text = new TextRecord(code.getId(), locDefault.toLanguageTag(), locale.getDisplayName(locDefault));
-			getContext().executeInsert(text);
+			insert(text);
 		});
 	}
 
 	private void insertTexts() {
-		getContext().executeInsert(TEXT_TYPE_LOCALE);
-		getContext().executeInsert(TEXT_TYPE_FILE);
-		getContext().executeInsert(TEXT_TYPE_SEX);
+		insert(TEXT_TYPE_FILE);
+		insert(TEXT_TYPE_SEX);
 		
-		getContext().executeInsert(TEXT_UNDEFINED);
+		insert(TEXT_UNDEFINED);
 
-		getContext().executeInsert(TEXT_ROOT);
-		getContext().executeInsert(TEXT_USER);
-		getContext().executeInsert(TEXT_USER_DE);
-		getContext().executeInsert(TEXT_GUEST);
-		getContext().executeInsert(TEXT_GUEST_DE);
+		insert(TEXT_ROOT);
+		insert(TEXT_USER);
+		insert(TEXT_USER_DE);
+		insert(TEXT_GUEST);
+		insert(TEXT_GUEST_DE);
 	}
 
 	@Override
@@ -190,30 +193,57 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	}
 
 	private void insertSamplePersons() {
-		getContext().executeInsert(PERSON_ALICE);
-		getContext().executeInsert(PERSON_BOB);
+		insert(PERSON_ALICE);
+		insert(PERSON_BOB);
 	}
 
 	private void insertSampleRoles() {
-		getContext().executeInsert(USER_ROLE_ALICE);
+		insert(USER_ROLE_ALICE);
 	}
 
 	private void insertSampleUsers() {
-		getContext().executeInsert(USER_ALICE);
+		insert(USER_ALICE);
 	}
 
 	private void insertSampleDocuments() {
-		getContext().executeInsert(DOCUMENT_ALICE_1);
+//		insert(DOCUMENT_ALICE_1);
 		
 		// load image file from src/main/resource folder into database
 		byte [] content = loadResourceBytes("file/" + DOCUMENT_LOGO_NAME);
 		DOCUMENT_ALICE_2.setContent(content);
 		DOCUMENT_ALICE_2.setSize(BigDecimal.valueOf(content.length));
-		getContext().executeInsert(DOCUMENT_ALICE_2);
+		insert(DOCUMENT_ALICE_2);
 	}
 
 	protected DSLContext getContext() {
+		// TODO FIXME this seems to work for inserts, check if this is also good for table creation
+		// in addition: figure out where the APP schema comes from. is this a jooq default?
+		if(config.getContext().configuration().settings().getRenderMapping() == null) {
+			config.getContext().configuration().settings()
+				.setRenderMapping(new RenderMapping()
+						.withSchemata(new MappedSchema()
+								.withInput("APP")
+								.withOutput("core")));
+		}
+
 		return config.getContext();
+	}
+	
+	private void insert(org.jooq.Record record) {
+		try { 
+			if(record instanceof CodeRecord) { getContext().executeInsert((CodeRecord)record); return; }
+			if(record instanceof DocumentRecord) { getContext().executeInsert((DocumentRecord)record); return; }
+			if(record instanceof PersonRecord) { getContext().executeInsert((PersonRecord)record); return; }
+			if(record instanceof RolePermissionRecord) { getContext().executeInsert((RolePermissionRecord)record); return; }
+			if(record instanceof RoleRecord) { getContext().executeInsert((RoleRecord)record); return; }
+			if(record instanceof TextRecord) { getContext().executeInsert((TextRecord)record); return; }
+			if(record instanceof TypeRecord) { getContext().executeInsert((TypeRecord)record); return; }
+			if(record instanceof UserRoleRecord) { getContext().executeInsert((UserRoleRecord)record); return; }
+			if(record instanceof UserRecord) { getContext().executeInsert((UserRecord)record); return; }
+		}
+		catch(DataAccessException e) { 
+			/* NOP */
+		}
 	}
 	
 	private static BigDecimal getSize(byte [] content) {

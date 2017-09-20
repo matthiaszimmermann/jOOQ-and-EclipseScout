@@ -4,24 +4,21 @@ import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.AbstractTable;
-
-public class RolePermissionTable extends AbstractTable {
+public class RolePermissionTable extends AbstractCoreTable {
 
 	public static String TABLE = "ROLE_PERMISSION";
 	public static String ROLE_NAME = RoleTable.TABLE + "_NAME";
 	public static String PERMISSION = "PERMISSION";
 
 	@Override
-	public String getTableName() {
+	public String getName() {
 		return TABLE;
 	}
 
 	@Override
-	public String getCreateSQL() {
-
+	public String createSQLInternal() {
 		return getContext()
-				.createTable(getTableName())
+				.createTable(getName())
 				.column(ROLE_NAME, TYPE_ID)
 				.column(PERMISSION, TYPE_STRING_S.nullable(false))
 				.constraints(

@@ -19,7 +19,7 @@ public class DatabaseProperties {
 
 		@Override
 		public String getKey() {
-			return "contacts.database.autocreate";
+			return "com.acme.application.server.sql.autocreate";
 		}
 	}
 
@@ -32,7 +32,7 @@ public class DatabaseProperties {
 
 		@Override
 		public String getKey() {
-			return "contacts.database.autopopulate";
+			return "com.acme.application.server.sql.autopopulate";
 		}
 	}
 
@@ -45,7 +45,23 @@ public class DatabaseProperties {
 
 		@Override
 		public String getKey() {
-			return "contacts.database.jdbc.mapping.name";
+			return "com.acme.application.server.sql.mapping.name";
+		}
+	}
+
+	public static class UsernameProperty extends AbstractStringConfigProperty {
+
+		@Override
+		public String getKey() {
+			return "com.acme.application.server.sql.username";
+		}
+	}
+
+	public static class PasswordProperty extends AbstractStringConfigProperty {
+
+		@Override
+		public String getKey() {
+			return "com.acme.application.server.sql.password";
 		}
 	}
 

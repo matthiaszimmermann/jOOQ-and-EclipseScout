@@ -1,14 +1,11 @@
 package com.acme.application.database.generator;
 
-import org.eclipse.scout.rt.platform.ApplicationScoped;
 import org.jooq.DataType;
 import org.jooq.SQLDialect;
 import org.jooq.impl.SQLDataType;
 import org.jooq.types.UInteger;
-import org.slf4j.Logger;
 
-@ApplicationScoped
-public interface IDatabaseTable {
+public interface IDatabaseTable extends IDatabaseObject {
 
 	public static final String ID = "ID";
 	public static final DataType<String> TYPE_ID = SQLDataType.VARCHAR.length(36).nullable(false);
@@ -26,7 +23,7 @@ public interface IDatabaseTable {
 	public static final DataType<String> TYPE_STRING_L = SQLDataType.VARCHAR.length(512);
 	public static final DataType<String> TYPE_STRING_XL = SQLDataType.VARCHAR.length(1024);
 	
-	public static final DataType<byte[]> TYPE_BLOB = SQLDataType.BLOB;
+	public static final DataType<byte[]> TYPE_BLOB = SQLDataType.VARBINARY;
 	public static final DataType<UInteger> TYPE_SIZE = SQLDataType.INTEGERUNSIGNED;
 	
 	public static String DEFAULT_TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -34,15 +31,6 @@ public interface IDatabaseTable {
 	
 	public static final SQLDialect SQL_DIALECT = GeneratorApplication.DB_DIALECT;
 
-	
-	Config getConfig();
-	void setConfig(Config config);
-	
-	String getTableName();
-	String getCreateSQL();
-	
-	void create();
-	void drop();
-	
-	Logger getLogger();
+	String getSchemaName();
+	String createSQLInternal();
 }

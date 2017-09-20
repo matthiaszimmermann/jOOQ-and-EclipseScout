@@ -4,24 +4,21 @@ import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.AbstractTable;
-
-public class TypeTable extends AbstractTable {
+public class TypeTable extends AbstractCoreTable {
 
 	public static final String TABLE = "TYPE";
 	public static final String ID = "ID";
 	public static final String TYPE = "CODE_TYPE";
 
 	@Override
-	public String getTableName() {
+	public String getName() {
 		return TABLE;
 	}
 
 	@Override
-	public String getCreateSQL() {
-
+	public String createSQLInternal() {
 		return getContext()
-				.createTable(getTableName())
+				.createTable(getName())
 				.column(ID, TYPE_ID)
 				.column(TYPE, TYPE_CODE)
 				.constraints(

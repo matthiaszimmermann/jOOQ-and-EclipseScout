@@ -4,9 +4,7 @@ import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.AbstractTable;
-
-public class PersonTable extends AbstractTable {
+public class PersonTable extends AbstractCoreTable {
 
 	public static String TABLE = "PERSON";
 	public static String FIRST_NAME = "FIRST_NAME";
@@ -14,15 +12,14 @@ public class PersonTable extends AbstractTable {
 	public static String SEX = "SEX";
 
 	@Override
-	public String getTableName() {
+	public String getName() {
 		return TABLE;
 	}
 
 	@Override
-	public String getCreateSQL() {
-
+	public String createSQLInternal() {
 		return getContext()
-				.createTable(getTableName())
+				.createTable(getName())
 				.column(ID, TYPE_ID)
 				.column(FIRST_NAME, TYPE_STRING_S)
 				.column(LAST_NAME, TYPE_STRING_S)

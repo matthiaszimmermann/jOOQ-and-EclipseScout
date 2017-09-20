@@ -4,26 +4,24 @@ import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.AbstractTable;
-
-public class RoleTable extends AbstractTable {
+public class RoleTable extends AbstractCoreTable {
 
 	public static final String TABLE = "ROLE";
 	public static final String NAME = "NAME";
-	
+
 	public static final String ROOT = "root";
 	public static final String USER = "user";
 	public static final String GUEST = "guest";
 
 	@Override
-	public String getTableName() {
+	public String getName() {
 		return TABLE;
 	}
 
 	@Override
-	public String getCreateSQL() {
+	public String createSQLInternal() {
 		return getContext()
-				.createTable(getTableName())
+				.createTable(getName())
 				.column(NAME, TYPE_ID)
 				.column(ACTIVE, TYPE_BOOLEAN)
 				.constraints(

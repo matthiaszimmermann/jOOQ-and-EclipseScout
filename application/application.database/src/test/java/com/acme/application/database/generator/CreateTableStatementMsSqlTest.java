@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.testing.platform.runner.PlatformTestRunner;
 import org.eclipse.scout.rt.testing.platform.runner.RunWithSubject;
+import org.jooq.SQLDialect;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,7 +14,7 @@ import org.junit.runner.RunWith;
 @RunWith(PlatformTestRunner.class)
 @RunWithSubject("admin")
 //@Ignore
-public class CreateTableStatementTest {
+public class CreateTableStatementMsSqlTest {
 
 
 	@Test
@@ -28,11 +29,11 @@ public class CreateTableStatementTest {
 
 		Connection connection = null;
 		try {
-			Class.forName(GeneratorApplication.DB_DRIVER);
-			connection = DriverManager.getConnection(GeneratorApplication.DB_MAPPING_NAME);
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+			connection = DriverManager.getConnection("jdbc:sqlserver://192.168.99.100:1433;DatabaseName=SCOUT;user=SA;password=<YourStrong!Passw0rd>");
 
 			for (IDatabaseTable table : BEANS.all(IDatabaseTable.class)) {
-				table.setConfig(new Config(connection, GeneratorApplication.DB_DIALECT));
+				table.setConfig(new Config(connection, SQLDialect.SQLSERVER));
 				System.out.println(table.getCreateSQL() + ";");
 				System.out.println();
 			}

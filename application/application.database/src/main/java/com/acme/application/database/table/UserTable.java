@@ -4,9 +4,7 @@ import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.AbstractTable;
-
-public class UserTable extends AbstractTable {
+public class UserTable extends AbstractCoreTable {
 
 	public static final String TABLE = "USER";
 	public static final String USERNAME = "USERNAME";
@@ -15,17 +13,16 @@ public class UserTable extends AbstractTable {
 	public static final String PASSWORD_ENCRYPTED = "PASSWORD_ENCRYPTED";
 
 	public static final String ROOT = "root";
-	
+
 	@Override
-	public String getTableName() {
+	public String getName() {
 		return TABLE;
 	}
 
 	@Override
-	public String getCreateSQL() {
-
+	public String createSQLInternal() {
 		return getContext()
-				.createTable(getTableName())
+				.createTable(getName())
 				.column(USERNAME, TYPE_ID)
 				// foreign key to person
 				.column(PERSON_ID, TYPE_ID)
