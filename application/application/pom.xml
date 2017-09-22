@@ -29,6 +29,9 @@
 		<module>../application.database</module>
 		<module>../application.server</module>
 		<module>../application.client</module>
+		<module>../application.group_a.client</module>
+		<module>../application.group_a.shared</module>
+		<module>../application.group_a.server</module>
 		<module>../application.docx4j</module>
 		<module>../application.server.app.war</module>
 		<module>../application.ui.html</module>
@@ -76,6 +79,23 @@
 			<dependency>
 				<groupId>com.acme</groupId>
 				<artifactId>application.ui.html</artifactId>
+				<version>${com.acme.application.version}</version>
+			</dependency>
+			
+			<!-- Application Group Dependencies -->
+			<dependency>
+				<groupId>com.acme</groupId>
+				<artifactId>application.group_a.client</artifactId>
+				<version>${com.acme.application.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.acme</groupId>
+				<artifactId>application.group_a.shared</artifactId>
+				<version>${com.acme.application.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.acme</groupId>
+				<artifactId>application.group_a.server</artifactId>
 				<version>${com.acme.application.version}</version>
 			</dependency>
 		</dependencies>

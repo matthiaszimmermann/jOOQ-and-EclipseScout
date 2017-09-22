@@ -1,66 +1,53 @@
 package com.acme.application.database.generator;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import org.eclipse.scout.rt.platform.BEANS;
-import org.eclipse.scout.rt.testing.platform.runner.PlatformTestRunner;
-import org.eclipse.scout.rt.testing.platform.runner.RunWithSubject;
 import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
-import org.junit.AfterClass;
+import org.jooq.exception.DataAccessException;
+import org.jooq.exception.TooManyRowsException;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import com.acme.application.database.or.app.tables.Code;
-import com.acme.application.database.or.app.tables.Role;
-import com.acme.application.database.or.app.tables.Text;
-import com.acme.application.database.or.app.tables.Type;
-import com.acme.application.database.or.app.tables.records.CodeRecord;
-import com.acme.application.database.or.app.tables.records.RoleRecord;
-import com.acme.application.database.or.app.tables.records.TextRecord;
-import com.acme.application.database.or.app.tables.records.TypeRecord;
+import com.acme.application.database.or.core.tables.Code;
+import com.acme.application.database.or.core.tables.Role;
+import com.acme.application.database.or.core.tables.Text;
+import com.acme.application.database.or.core.tables.Type;
+import com.acme.application.database.or.core.tables.records.CodeRecord;
+import com.acme.application.database.or.core.tables.records.RoleRecord;
+import com.acme.application.database.or.core.tables.records.TextRecord;
+import com.acme.application.database.or.core.tables.records.TypeRecord;
 import com.acme.application.database.table.CodeTypeEnum;
 import com.acme.application.database.table.RoleTable;
 import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.database.table.TextTable;
 
-@RunWith(PlatformTestRunner.class)
-@RunWithSubject("admin")
 public class SetupTest {
 
+	private Connection connection = null;
 
-	private static final String DB_DRIVER = GeneratorApplication.DB_DRIVER;
-	private static final String DB_MAPPING_NAME = GeneratorApplication.DB_MAPPING_NAME;
-	private static final SQLDialect DB_DIALECT = GeneratorApplication.DB_DIALECT;
+	@Before
+	public void setup() throws Exception {
+		try (Connection jdbcConnection = InitializerApplication.getConnection()) {
+			InitializerApplication.initDatabase(jdbcConnection);
+			connection = jdbcConnection;
+		}
+	}
 
-	private static Config config;
-
-	@BeforeClass
-	public static void setup() throws Exception {
-		Class.forName(DB_DRIVER);
-		Connection connection = DriverManager.getConnection(DB_MAPPING_NAME);
-		config = new Config(connection, DB_DIALECT);
-
-		// TODO check why this does not work
-		//		SchemaInitializer schema = BEANS.get(SchemaInitializer.class);
-		//		schema.setConfig(config);
-		//		schema.initialize();
-
-		GeneratorApplication.setupDatabase(config);
-
-		IDataInitializer initializer = BEANS.get(IDataInitializer.class);
-		initializer.setConfig(config);
-		initializer.initialize();		
+	@After
+	public void teardown() throws SQLException {
+		if(connection != null) {
+			connection.close();
+		}
 	}
 
 	@Test
-	public void localeCodeTypeTest() {
+	public void localeCodeTypeTest() throws TooManyRowsException, DataAccessException, SQLException {
 		Type tt = Type.TYPE;
 		TypeRecord type = getContext()
 				.selectFrom(tt)
@@ -88,7 +75,7 @@ public class SetupTest {
 
 			Assert.assertNotNull("Locale name for code '" + code.getId() + "' and locale 'und' not found", text);
 			String expectedText = locale.getDisplayName(Locale.forLanguageTag(localeDefault));
-			
+
 			if(text.getKey().equals("nn-NO")) {
 				System.out.println("special case. expected: " + expectedText + ", actual text:" + text.getText());
 			}
@@ -177,12 +164,21 @@ public class SetupTest {
 		Assert.assertEquals("unexpected number of roles",  3, count);
 	}
 
-	@AfterClass
-	public static void teardown() {
-		//		GeneratorApplication.teardownDatabase(config);
-	}
-
 	protected DSLContext getContext() {
-		return config.getContext();
+		try {
+			if(connection == null) {
+				connection = InitializerApplication.getConnection();
+			}
+			
+			if(!connection.isValid(1)) {
+				connection.close();
+				connection = InitializerApplication.getConnection();
+			}
+			
+			return InitializerApplication.getContext(connection);
+		} 
+		catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

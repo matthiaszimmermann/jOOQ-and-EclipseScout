@@ -1,0 +1,11 @@
+package com.acme.application.database.table.group_a;
+
+import com.acme.application.database.generator.AbstractTable;
+
+public abstract class AbstractSvTable extends AbstractTable {
+
+	@Override
+	public String getSchemaName() {
+		return SvSchema.SCHEMA;
+	}
+}

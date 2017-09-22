@@ -1,11 +1,6 @@
 package com.acme.application.client.role;
 
-import java.util.Set;
-
 import org.eclipse.scout.rt.client.dto.Data;
-import org.eclipse.scout.rt.client.ui.action.menu.AbstractMenu;
-import org.eclipse.scout.rt.client.ui.action.menu.IMenuType;
-import org.eclipse.scout.rt.client.ui.action.menu.TableMenuType;
 import org.eclipse.scout.rt.client.ui.basic.table.ITableRow;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractStringColumn;
 import org.eclipse.scout.rt.client.ui.desktop.outline.IOutline;
@@ -14,15 +9,14 @@ import org.eclipse.scout.rt.client.ui.form.FormEvent;
 import org.eclipse.scout.rt.client.ui.form.FormListener;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
-import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 
+import com.acme.application.client.common.AbstractEditMenu;
 import com.acme.application.client.common.AbstractExportableTable;
+import com.acme.application.client.common.AbstractNewMenu;
+import com.acme.application.client.common.AbstractTranslateMenu;
 import com.acme.application.client.role.RoleTablePage.Table;
-import com.acme.application.client.text.TextForm;
-import com.acme.application.shared.FontAwesomeIcons;
-import com.acme.application.shared.role.CreateRolePermission;
 import com.acme.application.shared.role.IRoleService;
 import com.acme.application.shared.role.ReadRolePagePermission;
 import com.acme.application.shared.role.RoleTablePageData;
@@ -71,32 +65,7 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 		}
 
 		@Order(10)
-		public class NewMenu extends AbstractMenu {
-
-			@Override
-			protected void execInitAction() {
-				setVisiblePermission(new CreateRolePermission());
-			}
-
-			@Override
-			protected String getConfiguredText() {
-				return TEXTS.get("New");
-			}
-
-			@Override
-			protected String getConfiguredIconId() {
-				return FontAwesomeIcons.fa_magic;
-			}
-
-			@Override
-			protected String getConfiguredKeyStroke() {
-				return "alt-n";
-			}
-
-			@Override
-			protected Set<? extends IMenuType> getConfiguredMenuTypes() {
-				return CollectionUtility.hashSet(TableMenuType.EmptySpace, TableMenuType.SingleSelection, TableMenuType.MultiSelection);
-			}
+		public class NewMenu extends AbstractNewMenu {
 
 			@Override
 			protected void execAction() {
@@ -107,76 +76,34 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 		}
 
 		@Order(20)
-		public class EditMenu extends AbstractMenu {
-
-			@Override
-			protected String getConfiguredText() {
-				return TEXTS.get("Edit");
-			}
-
-			@Override
-			protected String getConfiguredIconId() {
-				return FontAwesomeIcons.fa_pencil;
-			}
-
-			@Override
-			protected String getConfiguredKeyStroke() {
-				return "alt-e";
-			}
-
-			@Override
-			protected Set<? extends IMenuType> getConfiguredMenuTypes() {
-				return CollectionUtility.hashSet(TableMenuType.SingleSelection);
-			}
+		public class EditMenu extends AbstractEditMenu {
 
 			@Override
 			protected void execAction() {
-				String roleId = getIdColumn().getSelectedValue();
-
 				RoleForm form = new RoleForm();
 				form.addFormListener(new RoleFormListener());
-				form.setRoleId(roleId);
+				form.setRoleId(getSelectedId());
 				form.setRoleIdEnabled(false);
 				form.startModify();
 			}
 		}
 
 		@Order(30)
-		public class TranslateMenu extends AbstractMenu {
-			
+		public class TranslateMenu extends AbstractTranslateMenu {
+
 			@Override
-			protected String getConfiguredText() {
-				return TEXTS.get("Translate");
+			protected String getObjectId() {
+				return getSelectedId();
 			}
 
 			@Override
-			protected String getConfiguredIconId() {
-				return FontAwesomeIcons.fa_language;
+			protected void reloadTablePage() {
+				reloadPage();
 			}
-
-			@Override
-			protected String getConfiguredKeyStroke() {
-				return "alt-t";
-			}
-
-			@Override
-			protected Set<? extends IMenuType> getConfiguredMenuTypes() {
-				return CollectionUtility.hashSet(TableMenuType.SingleSelection);
-			}
-
-			@Override
-			protected void execAction() {
-				String roleId = getIdColumn().getSelectedValue();
-
-				TextForm form = new TextForm();
-				form.setKey(roleId);
-				form.startModify();
-				form.waitFor();
-
-				if (form.isFormStored()) {
-					reloadPage();
-				}
-			}
+		}
+		
+		private String getSelectedId() {
+			return getIdColumn().getSelectedValue();
 		}
 
 		private class RoleFormListener implements FormListener {

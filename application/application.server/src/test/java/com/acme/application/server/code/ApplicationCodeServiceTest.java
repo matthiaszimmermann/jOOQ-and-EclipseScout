@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.acme.application.database.or.app.tables.records.CodeRecord;
+import com.acme.application.database.or.core.tables.records.CodeRecord;
 import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.database.table.TableUtility;
 import com.acme.application.server.ServerSession;
@@ -29,7 +29,7 @@ import com.acme.application.shared.code.IApplicationCodeType;
 import com.acme.application.shared.code.LocaleCodeType;
 import com.acme.application.shared.code.SexCodeType;
 
-@RunWithSubject("anonymous")
+@RunWithSubject("root")
 @RunWith(ServerTestRunner.class)
 @RunWithServerSession(ServerSession.class)
 public class ApplicationCodeServiceTest {

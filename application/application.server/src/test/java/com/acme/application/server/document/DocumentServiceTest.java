@@ -13,11 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.acme.application.database.or.app.tables.records.DocumentRecord;
+import com.acme.application.database.or.core.tables.records.DocumentRecord;
 import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.server.ServerSession;
 
-@RunWithSubject("anonymous")
+@RunWithSubject("root")
 @RunWith(ServerTestRunner.class)
 @RunWithServerSession(ServerSession.class)
 public class DocumentServiceTest {
@@ -27,7 +27,7 @@ public class DocumentServiceTest {
 	@Before
 	public void initService() {
 		service = BEANS.get(DocumentService.class);
-		assertNotNull("Application code service could not be resolved", service);
+		assertNotNull("Document service could not be resolved", service);
 	}
 
 	@Test

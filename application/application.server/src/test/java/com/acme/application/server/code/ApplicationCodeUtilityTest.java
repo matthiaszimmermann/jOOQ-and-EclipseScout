@@ -4,25 +4,48 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.eclipse.scout.rt.shared.services.common.code.ICode;
 import org.eclipse.scout.rt.testing.platform.runner.RunWithSubject;
 import org.eclipse.scout.rt.testing.server.runner.RunWithServerSession;
 import org.eclipse.scout.rt.testing.server.runner.ServerTestRunner;
+import org.jooq.DSLContext;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.acme.application.database.generator.InitializerApplication;
 import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.server.ServerSession;
 import com.acme.application.shared.code.ApplicationCodeUtility;
 import com.acme.application.shared.code.LocaleCodeType;
 import com.acme.application.shared.code.SexCodeType;
 
-@RunWithSubject("anonymous")
+@RunWithSubject("root")
 @RunWith(ServerTestRunner.class)
 @RunWithServerSession(ServerSession.class)
 public class ApplicationCodeUtilityTest {
+
+	private Connection connection = null;
+
+	@Before
+	public void setup() throws Exception {
+		try (Connection jdbcConnection = InitializerApplication.getConnection()) {
+			InitializerApplication.initDatabase(jdbcConnection);
+			connection = jdbcConnection;
+		}
+	}
+
+	@After
+	public void teardown() throws SQLException {
+		if(connection != null) {
+			connection.close();
+		}
+	}
 
 	@Test
 	public void testStaticSexCodes() {
@@ -64,5 +87,23 @@ public class ApplicationCodeUtilityTest {
 		List<? extends ICode<String>> codes = ApplicationCodeUtility.getCodes(LocaleCodeType.class);
 		assertTrue("Unexpected number of locale codes. Expected 160 or more, found" + codes.size(), codes.size() >= 160);
 		assertTrue("Locale code 'de-CH' not found", ApplicationCodeUtility.exists(LocaleCodeType.class, "de-CH"));
+	}
+
+	protected DSLContext getContext() {
+		try {
+			if(connection == null) {
+				connection = InitializerApplication.getConnection();
+			}
+			
+			if(!connection.isValid(1)) {
+				connection.close();
+				connection = InitializerApplication.getConnection();
+			}
+			
+			return InitializerApplication.getContext(connection);
+		} 
+		catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

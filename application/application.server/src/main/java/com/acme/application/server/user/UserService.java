@@ -2,6 +2,8 @@ package com.acme.application.server.user;
 
 import java.security.AllPermission;
 import java.security.Permission;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,30 +18,44 @@ import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.eclipse.scout.rt.shared.services.lookup.ILookupRow;
 import org.eclipse.scout.rt.shared.services.lookup.LookupRow;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.or.app.tables.User;
-import com.acme.application.database.or.app.tables.UserRole;
-import com.acme.application.database.or.app.tables.records.PersonRecord;
-import com.acme.application.database.or.app.tables.records.UserRecord;
-import com.acme.application.database.or.app.tables.records.UserRoleRecord;
+import com.acme.application.database.or.core.tables.User;
+import com.acme.application.database.or.core.tables.UserRole;
+import com.acme.application.database.or.core.tables.records.PersonRecord;
+import com.acme.application.database.or.core.tables.records.UserRecord;
+import com.acme.application.database.or.core.tables.records.UserRoleRecord;
 import com.acme.application.database.table.RoleTable;
-import com.acme.application.server.common.BaseService;
+import com.acme.application.server.common.AbstractBaseService;
 import com.acme.application.server.person.PersonService;
 import com.acme.application.shared.security.PasswordUtility;
 import com.acme.application.shared.user.IUserService;
 import com.acme.application.shared.user.ProfileFormData;
-import com.acme.application.shared.user.UserFormData;
-import com.acme.application.shared.user.UserTablePageData;
 import com.acme.application.shared.user.ProfileFormData.OptionUserBox;
-import com.acme.application.shared.user.UserFormData.UserBox;
+import com.acme.application.shared.user.UserFormData;
 import com.acme.application.shared.user.UserFormData.RoleTable.RoleTableRowData;
+import com.acme.application.shared.user.UserFormData.UserBox;
+import com.acme.application.shared.user.UserTablePageData;
 import com.acme.application.shared.user.UserTablePageData.UserTableRowData;
 
-public class UserService extends BaseService implements IUserService {
+public class UserService extends AbstractBaseService<User, UserRecord> implements IUserService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
+	@Override
+	public User getTable() {
+		return User.USER;
+	}
+
+	@Override
+	public Field<String> getIdColumn() {
+		return User.USER.USERNAME;
+	}
+
+	@Override
+	public Logger getLogger() {
+		return LoggerFactory.getLogger(UserService.class);
+	}
 
 	/**
 	 * Returns a list of all usernames.
@@ -49,31 +65,6 @@ public class UserService extends BaseService implements IUserService {
 		return getAll()
 				.stream()
 				.map(user -> { return user.getUsername(); })
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Returns true iff a user with the provider username exists.
-	 */
-	@Override
-	public boolean exists(String username) {
-		User ut = User.USER;
-		DSLContext ctx = getContext();
-
-		return ctx.fetchExists(
-				ctx.select()
-				.from(ut)
-				.where(ut.USERNAME.eq(username))
-				);
-	}
-
-	/**
-	 * Returns all available Users.
-	 */
-	public List<UserRecord> getAll() {
-		return getContext()
-				.selectFrom(User.USER)
-				.fetchStream()
 				.collect(Collectors.toList());
 	}
 
@@ -97,50 +88,35 @@ public class UserService extends BaseService implements IUserService {
 	}
 
 	/**
-	 * Returns the user object for the user specified by the provided user name.
-	 *
-	 * @return The associated UserRecord or null if no such user exists.
-	 */
-	public UserRecord get(String username) {
-		User user = User.USER;
-
-		return getContext()
-				.selectFrom(user)
-				.where(user.USERNAME.eq(username))
-				.fetchOne();
-	}
-
-	/**
 	 * Persists the provided user, person data and associated roles. 
 	 */
 	private void store(UserRecord user, PersonRecord person, List<String> roleIds) {
-		BEANS.get(PersonService.class).store(person);
-		store(user);
+		BEANS.get(PersonService.class).store(person.getId(), person);
+		store(user.getUsername(), user);
 		storeUserRoles(user, roleIds);
-	}
-
-	private void store(UserRecord user) {
-		LOG.info("persist user {}", user);
-
-		if(exists(user.getUsername())) { getContext().executeUpdate(user); }
-		else { getContext().executeInsert(user); }		
 	}
 
 	private void storeUserRoles(UserRecord user, List<String> roles) {
 		String username = user.getUsername();
 
-		// delete existing user roles
-		UserRole urt = UserRole.USER_ROLE;
-		getContext()
-		.deleteFrom(urt)
-		.where(urt.USERNAME.eq(username))
-		.execute();
+		try(Connection connection = getConnection()) {
+			DSLContext context = getContext(connection);
 
-		// add new user roles
-		roles.stream().forEach(role -> {
-			getContext()
-			.executeInsert(new UserRoleRecord(username, role));
-		});
+			// delete existing user roles
+			UserRole table = UserRole.USER_ROLE;
+			context
+			.deleteFrom(table)
+			.where(table.USERNAME.eq(username))
+			.execute();
+
+			// add new user roles
+			roles.stream().forEach(role -> {
+				context.executeInsert(new UserRoleRecord(username, role));
+			});
+		}
+		catch (SQLException e) {
+			getLogger().error("Failed to execute storeUserRoles(). user: {}, exception: ", username, e);
+		}
 	}
 
 	/**
@@ -151,17 +127,24 @@ public class UserService extends BaseService implements IUserService {
 			return new ArrayList<String>();
 		}
 
-		UserRole urt = UserRole.USER_ROLE;
-		String username = user.getUsername();
-		return getContext()
-				.select(urt.ROLE_NAME)
-				.from(urt)
-				.where(urt.USERNAME.eq(username))
-				.fetchStream()
-				.map(record -> { 
-					return record.getValue(urt.ROLE_NAME); 
-				})
-				.collect(Collectors.toList());
+		try(Connection connection = getConnection()) {
+			UserRole table = UserRole.USER_ROLE;
+			String username = user.getUsername();
+			return getContext(connection)
+					.select(table.ROLE_NAME)
+					.from(table)
+					.where(table.USERNAME.eq(username))
+					.fetchStream()
+					.map(record -> { 
+						return record.getValue(table.ROLE_NAME); 
+					})
+					.collect(Collectors.toList());
+		}
+		catch (SQLException e) {
+			getLogger().error("Failed to execute getRoles(). user: {}, exception: ", user, e);
+		}
+
+		return new ArrayList<String>();
 	}
 
 	@Override
@@ -192,16 +175,16 @@ public class UserService extends BaseService implements IUserService {
 		UserRecord user = get(username);
 
 		if (user == null) {
-			LOG.warn("Provided user is is null");
+			getLogger().warn("Provided user is is null");
 			return false;
 		}
 
 		if (!PasswordUtility.passwordIsValid(passwordPlain, user.getPasswordEncrypted())) {
-			LOG.warn("Provided user and password do not match");
+			getLogger().warn("Provided user and password do not match");
 			return false;
 		}
 
-		LOG.info("Valid password provided for user '{}'", username);
+		getLogger().info("Valid password provided for user '{}'", username);
 		return true;
 	}
 
@@ -298,7 +281,7 @@ public class UserService extends BaseService implements IUserService {
 		PersonRecord person = BEANS.get(PersonService.class).getOrCreate(user.getPersonId());
 		person.setFirstName(box.getFirstName().getValue());
 		person.setLastName(box.getLastName().getValue());
-		
+
 		// update person id for new users
 		if(user.getPersonId() == null) {
 			user.setPersonId(person.getId());
@@ -328,32 +311,32 @@ public class UserService extends BaseService implements IUserService {
 
 		return pageData;
 	}
-	
+
 	public List<? extends ILookupRow<String>> getLookupRows(boolean activeOnly) {
 		List<ILookupRow<String>> list = new ArrayList<>();
-		
+
 		getAll()
 		.stream()
 		.filter(user -> !activeOnly || (activeOnly && user.getActive()))
 		.forEach(user -> {
 			list.add(new LookupRow<>(user.getUsername(), getPersonDisplayName(user)));
 		});
-		
+
 		return list;
 	}
 
 	private String getPersonDisplayName(UserRecord user) {
 		PersonRecord person = getPerson(user);
 		String displayName = ObjectUtility.nvl(person.getFirstName(), "");
-		
+
 		if(StringUtility.hasText(person.getLastName())) {
 			if(StringUtility.hasText(displayName)) {
 				return displayName + " " + person.getLastName();
 			}
-			
+
 			return person.getLastName();
 		}
-		
+
 		return displayName;
 	}
 
@@ -367,7 +350,7 @@ public class UserService extends BaseService implements IUserService {
 
 		UserRecord user = get(box.getUserId().getValue());
 		box.getLocale().setValue(user.getLocale());
-		
+
 		PersonRecord person = BEANS.get(PersonService.class).get(user.getPersonId());
 		box.getFirstName().setValue(person.getFirstName());
 		box.getLastName().setValue(person.getLastName());
@@ -388,26 +371,26 @@ public class UserService extends BaseService implements IUserService {
 
 		UserRecord user = get(box.getUserId().getValue());
 		user.setLocale(box.getLocale().getValue());
-		
+
 		String passwordNew = formData.getNewPassword().getValue();
 		if(StringUtility.hasText(passwordNew)) {
 			String passwordEncoded = PasswordUtility.calculateEncodedPassword(passwordNew);
 			user.setPasswordEncrypted(passwordEncoded);
 		}
-		
-		getContext().executeUpdate(user);
-		
+
+		store(user.getUsername(), user);
+
 		return user;
 	}
 
 	private void updatePerson(ProfileFormData formData, String personId) {
 		OptionUserBox box = formData.getOptionUserBox();
-		
+
 		PersonRecord person = BEANS.get(PersonService.class).get(personId);
 		person.setFirstName(ObjectUtility.nvl(box.getFirstName().getValue(), ""));
 		person.setLastName(ObjectUtility.nvl(box.getLastName().getValue(), ""));
-		
-		getContext().executeUpdate(person);
+
+		BEANS.get(PersonService.class).store(person.getId(), person);
 	}
 
 	@Override
@@ -415,7 +398,7 @@ public class UserService extends BaseService implements IUserService {
 		if(StringUtility.hasText(username)) {
 			return Locale.forLanguageTag(get(username).getLocale());
 		}
-		
+
 		return Locale.ROOT;
 	}
 }

@@ -1,7 +1,9 @@
 package com.acme.application.shared.common;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -39,12 +41,23 @@ public class DateTimeUtility {
 			.ofInstant(timeInUtc.toInstant(), DEFAULT_ZONE)
 			.format(DEFAULT_FORMATTER);
 	}
+	
+	/**
+	 * Converts the provided date and time zone into a utc timestamp in string format.
+	 */
+	// TODO add test cases
+	public static String convert(Date localDate, ZoneOffset localZone) {
+		Instant instant = localDate.toInstant();
+		ZonedDateTime datetimeZoned = ZonedDateTime.ofInstant(instant, localZone);
+		ZonedDateTime dateTimeUtc = datetimeZoned.withZoneSameInstant(ZoneOffset.UTC);
+		return convert(dateTimeUtc);
+	}
 
 	public static ZonedDateTime convert(String timeInUtc) {
-		return ZonedDateTime.parse(timeInUtc, DEFAULT_FORMATTER);
+		return timeInUtc != null ? ZonedDateTime.parse(timeInUtc, DEFAULT_FORMATTER) : null;
 	}
 	
 	public static Date convertToDate(String timeInUtc) {
-		return Date.from(convert(timeInUtc).toInstant());
+		return timeInUtc != null ? Date.from(convert(timeInUtc).toInstant()) : null;
 	}
 }

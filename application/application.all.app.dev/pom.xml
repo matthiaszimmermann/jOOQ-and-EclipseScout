@@ -28,6 +28,11 @@
       <groupId>com.acme</groupId>
       <artifactId>application.server</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>com.acme</groupId>
+      <artifactId>application.group_a.server</artifactId>
+    </dependency>
 
     <!-- Scout Framework -->
     <dependency>

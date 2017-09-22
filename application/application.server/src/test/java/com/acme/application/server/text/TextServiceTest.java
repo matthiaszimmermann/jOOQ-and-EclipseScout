@@ -12,13 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.acme.application.database.or.app.tables.records.TextRecord;
+import com.acme.application.database.or.core.tables.records.TextRecord;
 import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.database.table.TableUtility;
 import com.acme.application.server.ServerSession;
 
 @RunWith(ServerTestRunner.class)
-@RunWithSubject("anonymous")
+@RunWithSubject("root")
 @RunWithServerSession(ServerSession.class)
 public class TextServiceTest {
 

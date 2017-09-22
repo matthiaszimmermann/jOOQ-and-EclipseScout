@@ -22,7 +22,7 @@ import org.eclipse.scout.rt.shared.services.common.security.IPermissionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.or.app.tables.records.TextRecord;
+import com.acme.application.database.or.core.tables.records.TextRecord;
 import com.acme.application.server.text.TextService;
 
 /**
@@ -80,7 +80,9 @@ public class PermissionService implements IPermissionService {
 					t2 = t2.substring(0, t2.indexOf(" Permission"));
 				}
 
-				BEANS.get(TextService.class).store(new TextRecord(key, Locale.ROOT.toLanguageTag(), t2));
+				String locale = Locale.ROOT.toLanguageTag();
+				String id = TextService.toId(locale, key);
+				BEANS.get(TextService.class).store(id, new TextRecord(key, locale, t2));
 			}
 		}
 	}

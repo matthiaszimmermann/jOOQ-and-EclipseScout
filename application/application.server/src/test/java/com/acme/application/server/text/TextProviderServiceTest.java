@@ -18,7 +18,7 @@ import com.acme.application.database.table.TextTable;
 import com.acme.application.server.ServerSession;
 
 @RunWith(ServerTestRunner.class)
-@RunWithSubject("anonymous")
+@RunWithSubject("root")
 @RunWithServerSession(ServerSession.class)
 public class TextProviderServiceTest {
 

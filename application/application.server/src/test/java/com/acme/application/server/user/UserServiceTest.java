@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 
 import com.acme.application.server.ServerSession;
 
-@RunWithSubject("anonymous")
+@RunWithSubject("root")
 @RunWith(ServerTestRunner.class)
 @RunWithServerSession(ServerSession.class)
 public class UserServiceTest {

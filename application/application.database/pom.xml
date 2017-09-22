@@ -21,6 +21,12 @@
 			<artifactId>application.shared</artifactId>
 		</dependency>
 
+		<!-- application dependencies -->
+		<dependency>
+			<groupId>com.acme</groupId>
+			<artifactId>application.group_a.shared</artifactId>
+		</dependency>
+
 		<!-- Scout framework -->
 		<dependency>
 			<groupId>org.eclipse.scout.rt</groupId>

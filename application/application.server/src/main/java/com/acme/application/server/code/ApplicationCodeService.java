@@ -1,5 +1,8 @@
 package com.acme.application.server.code;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -12,15 +15,15 @@ import org.eclipse.scout.rt.shared.services.common.code.ICode;
 import org.eclipse.scout.rt.shared.services.common.code.ICodeRow;
 import org.eclipse.scout.rt.shared.services.common.security.ACCESS;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.generator.Config;
-import com.acme.application.database.or.app.tables.Code;
-import com.acme.application.database.or.app.tables.records.CodeRecord;
-import com.acme.application.database.or.app.tables.records.TextRecord;
+import com.acme.application.database.or.core.tables.Code;
+import com.acme.application.database.or.core.tables.records.CodeRecord;
+import com.acme.application.database.or.core.tables.records.TextRecord;
 import com.acme.application.server.ServerSession;
-import com.acme.application.server.common.BaseService;
+import com.acme.application.server.common.AbstractBaseService;
 import com.acme.application.server.text.TextService;
 import com.acme.application.shared.code.ApplicationCodeFormData;
 import com.acme.application.shared.code.ApplicationCodePageData;
@@ -31,18 +34,21 @@ import com.acme.application.shared.code.IApplicationCodeType;
 import com.acme.application.shared.code.ReadApplicationCodePermission;
 import com.acme.application.shared.code.UpdateApplicationCodePermission;
 
-public class ApplicationCodeService extends BaseService implements IApplicationCodeService {
+public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord> implements IApplicationCodeService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ApplicationCodeService.class);
-
-	private Config config = null;
-
-	public Config getConfig() {
-		return config;
+	@Override
+	public Code getTable() {
+		return Code.CODE;
 	}
 
-	public void setConfig(Config config) {
-		this.config = config;
+	@Override
+	public Field<String> getIdColumn() {
+		return Code.CODE.ID;
+	}
+
+	@Override
+	public Logger getLogger() {
+		return LoggerFactory.getLogger(ApplicationCodeService.class);
 	}
 
 	@Override
@@ -99,7 +105,7 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 		String codeTypeId = formData.getCodeTypeId();
 		store(codeTypeId, toCodeRow(formData));
 		refresh(codeTypeId);
-		
+
 		return formData;
 	}
 
@@ -108,7 +114,7 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 		String text = formData.getCodeText().getValue();
 		String icon = null;
 		boolean active = formData.getActive().getValue();
-		
+
 		return new CodeRow<String>(id, text)
 				.withIconId(icon)
 				.withActive(active);
@@ -135,27 +141,30 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 	 * Persists the provided code.
 	 */
 	protected void store(CodeRecord code) {
-		LOG.info("Persist code\n{}", code);
+		try(Connection connection = getConnection()) {
+			DSLContext context = getContext(connection);
 
-		if(dynamicCodeExists(code.getTypeId(), code.getId())) { 
-			getContext().executeUpdate(code); 
-		}
-		else { 
-			getContext().executeInsert(code); 
+			if(dynamicCodeExists(context, code.getTypeId(), code.getId())) { 
+				context.executeUpdate(code); 
+			}
+			else { 
+				context.executeInsert(code); 
+			}
+		} 
+		catch (SQLException e) {
+			getLogger().error("Failed to execute store(). code: {}. exception: ", code, e);
 		}
 	}
 
 	/**
 	 * Returns true iff the dynamic code specified by the provided id and code type id exists.
 	 */
-	private boolean dynamicCodeExists(String codeTypeId, String codeId) {
-		Code ct = Code.CODE;
-		DSLContext ctx = getContext();
-
-		return ctx.fetchExists(
-				ctx.select()
-				.from(ct)
-				.where(ct.TYPE_ID.eq(codeTypeId).and(ct.ID.eq(codeId))));
+	private boolean dynamicCodeExists(DSLContext context, String codeTypeId, String codeId) {
+		return context.fetchExists(
+				context.select()
+				.from(getTable())
+				.where(getTable().TYPE_ID.eq(codeTypeId)
+						.and(getTable().ID.eq(codeId))));
 	}
 
 	/**
@@ -169,7 +178,7 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 
 	@Override
 	public List<ICodeRow<String>> loadCodeRowsFromDatabase(String codeTypeId) {
-		LOG.info("(Re)load dynamic codes from database for code id " + codeTypeId);
+		getLogger().info("(Re)load dynamic codes from database for code id " + codeTypeId);
 		Locale locale = ServerSession.get().getLocale();
 
 		return getCodeRecords(codeTypeId)
@@ -188,22 +197,36 @@ public class ApplicationCodeService extends BaseService implements IApplicationC
 	 * Loads all dynamic code rows from the database for the provided code type id.
 	 */
 	public List<CodeRecord> getCodeRecords(String codeTypeId) {
-		return getConfig().getContext()
-				.selectFrom(Code.CODE)
-				.where(Code.CODE.TYPE_ID.eq(codeTypeId))
-				.stream()
-				.collect(Collectors.toList());
+		try(Connection connection = getConnection()) {
+			return getContext(connection)
+					.selectFrom(getTable())
+					.where(getTable().TYPE_ID.eq(codeTypeId))
+					.stream()
+					.collect(Collectors.toList());
+		} 
+		catch (SQLException e) {
+			getLogger().error("Failed to execute getCodeRecords(). codeTypeId: {}. exception: ", codeTypeId, e);
+		}
+
+		return new ArrayList<CodeRecord>();
 	}
 
 	/**
 	 * Loads the dynamic code from the database specified for the provided code type id and code id.
 	 */
 	public CodeRecord getCodeRecord(String codeTypeId, String codeId) {
-		Code ct = Code.CODE;
-		return getConfig().getContext()
-				.selectFrom(ct)
-				.where(ct.TYPE_ID.eq(codeTypeId).and(ct.ID.eq(codeId)))
-				.fetchOne();
+		try(Connection connection = getConnection()) {
+			return getContext(connection)
+					.selectFrom(getTable())
+					.where(getTable().TYPE_ID.eq(codeTypeId)
+							.and(getTable().ID.eq(codeId)))
+					.fetchOne();
+		} 
+		catch (SQLException e) {
+			getLogger().error("Failed to execute getCodeRecord(). codeTypeId: {}, codeId: {}. exception: ", codeTypeId, codeId, e);
+		}
+
+		return null;
 	}
 
 	/**

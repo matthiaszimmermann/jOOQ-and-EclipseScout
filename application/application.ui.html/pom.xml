@@ -22,6 +22,12 @@
 			<artifactId>application.client</artifactId>
 		</dependency>
 
+		<!-- Group A module -->
+		<dependency>
+			<groupId>com.acme</groupId>
+			<artifactId>application.group_a.client</artifactId>
+		</dependency>
+
 		<!-- framework dependency -->
 		<dependency>
 			<groupId>org.eclipse.scout.rt</groupId>

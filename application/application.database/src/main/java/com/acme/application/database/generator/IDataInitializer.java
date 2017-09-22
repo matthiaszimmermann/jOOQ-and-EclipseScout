@@ -1,13 +1,11 @@
 package com.acme.application.database.generator;
 
 import org.eclipse.scout.rt.platform.ApplicationScoped;
+import org.jooq.DSLContext;
 
 @ApplicationScoped
 public interface IDataInitializer {
 
-	Config getConfig();
-	void setConfig(Config config);
-	
-	void initialize();
-	void addSamples();
+	void initialize(DSLContext context);
+	void addSamples(DSLContext context);
 }

@@ -16,7 +16,7 @@ import com.acme.application.server.ServerSession;
 import com.acme.application.shared.code.LocaleCodeType;
 import com.acme.application.shared.code.SexCodeType;
 
-@RunWithSubject("anonymous")
+@RunWithSubject("root")
 @RunWith(ServerTestRunner.class)
 @RunWithServerSession(ServerSession.class)
 public class CodeTypeTest {
@@ -39,7 +39,7 @@ public class CodeTypeTest {
 		Assert.assertNotNull("Undefined code not found", codeUnefined);
 		
 		List<? extends ICode<String>> codes = codeType.getCodes();
-		Assert.assertEquals("Unexpected number of codes", 3, codes.size());
+		Assert.assertTrue("Unexpected number of codes. Expected >= 3 but found " + codes.size(), codes.size() >= 3);
 	}
 	
 	@Test

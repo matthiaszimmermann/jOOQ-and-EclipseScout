@@ -3,10 +3,12 @@ package com.acme.application.database.generator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jooq.DSLContext;
+
 public class DatabaseUtility {
 
-	public static List<String> getSchemaNames(Config config) {
-		return config.getContext()
+	public static List<String> getSchemaNames(DSLContext context) {
+		return context
 				.meta()
 				.getSchemas()
 				.stream()
@@ -14,8 +16,8 @@ public class DatabaseUtility {
 				.collect(Collectors.toList());
 	}
 
-	public static List<String> getTableNames(Config config) {
-		return config.getContext()
+	public static List<String> getTableNames(DSLContext context) {
+		return context
 				.meta()
 				.getTables()
 				.stream()

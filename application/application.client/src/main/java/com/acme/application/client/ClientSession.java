@@ -6,7 +6,6 @@ import org.eclipse.scout.rt.client.AbstractClientSession;
 import org.eclipse.scout.rt.client.IClientSession;
 import org.eclipse.scout.rt.client.session.ClientSessionProvider;
 import org.eclipse.scout.rt.platform.BEANS;
-import org.eclipse.scout.rt.shared.services.common.ping.IPingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,7 @@ public class ClientSession extends AbstractClientSession {
 
 	@Override
 	protected void execLoadSession() {
+	    initializeSharedVariables();
 		initializeLocaleTextsAndCodes();
 		setDesktop(new Desktop());
 		
@@ -41,14 +41,9 @@ public class ClientSession extends AbstractClientSession {
 	}
 
 	public void initializeLocaleTextsAndCodes() {
-		forceSharedVariableSync();		
 		Locale userLocale = BEANS.get(IUserService.class).getLocale(getUserId());
 		setLocale(userLocale);
 		BEANS.get(ITextService.class).invalidateCache();
 		ApplicationCodeUtility.reloadAll();
-	}
-
-	private void forceSharedVariableSync() {
-		BEANS.get(IPingService.class).ping("");
 	}
 }

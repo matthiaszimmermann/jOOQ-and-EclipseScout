@@ -21,7 +21,7 @@ import org.eclipse.scout.rt.server.context.ServerRunContexts;
 import org.eclipse.scout.rt.server.session.ServerSessionProvider;
 import org.eclipse.scout.rt.shared.ui.UserAgents;
 
-import com.acme.application.server.sql.DatabaseProperties.SuperUserSubjectProperty;
+import com.acme.application.server.ServerProperties.SuperUserSubjectProperty;
 
 /**
  * Central point to obtain run contexts with super user rights, and to get the super user subject and session.

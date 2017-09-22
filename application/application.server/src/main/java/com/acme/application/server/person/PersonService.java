@@ -1,46 +1,32 @@
 package com.acme.application.server.person;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.sql.Connection;
+import java.sql.SQLException;
 
-import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.or.app.tables.Person;
-import com.acme.application.database.or.app.tables.records.PersonRecord;
+import com.acme.application.database.or.core.tables.Person;
+import com.acme.application.database.or.core.tables.records.PersonRecord;
 import com.acme.application.database.table.TableUtility;
-import com.acme.application.server.common.BaseService;
+import com.acme.application.server.common.AbstractBaseService;
 
-public class PersonService extends BaseService {
+public class PersonService extends AbstractBaseService<Person, PersonRecord> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PersonService.class);
-
-	/**
-	 * Returns true iff a person with the specified id exists.
-	 */
-	public boolean exists(String personId) {
-		Person pt = Person.PERSON;
-		DSLContext ctx = getContext();
-
-		return ctx.fetchExists(
-				ctx.select()
-				.from(pt)
-				.where(pt.ID.eq(personId))
-				);
+	@Override
+	public Person getTable() {
+		return Person.PERSON;
 	}
 
-	/**
-	 * Returns the person object for the specified id.
-	 * Returns null if no such person exists.
-	 */
-	public PersonRecord get(String personId) {
-		Person pt = Person.PERSON;
+	@Override
+	public Field<String> getIdColumn() {
+		return Person.PERSON.ID;
+	}
 
-		return getContext()
-				.selectFrom(pt)
-				.where(pt.ID.eq(personId))
-				.fetchOne();
+	@Override
+	public Logger getLogger() {
+		return LoggerFactory.getLogger(PersonService.class);
 	}
 
 	/**
@@ -61,35 +47,19 @@ public class PersonService extends BaseService {
 		return person;
 	}
 
-	/**
-	 * Returns all available persons.
-	 */
-	public List<PersonRecord> getAll() {
-		return getContext()
-				.selectFrom(Person.PERSON)
-				.fetchStream()
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Persists the provided person. 
-	 */
-	public void store(PersonRecord person) {
-		LOG.info("persist person {}", person);
-		
-		if(exists(person.getId())) { getContext().executeUpdate(person); }
-		else { getContext().executeInsert(person); }
-	}
-
 	public void updateName(String personId, String firstName, String lastName) {
-		LOG.info("update person names to {} {} for {}", firstName, lastName, personId);
-		
-		Person pt = Person.PERSON;
-		getContext()
-		.update(pt)
-		.set(pt.FIRST_NAME, firstName)
-		.set(pt.LAST_NAME, lastName)
-		.where(pt.ID.eq(personId))
-		.execute();
+		getLogger().info("update person names to {} {} for {}", firstName, lastName, personId);
+
+		try(Connection connection = getConnection()) {
+			getContext(connection)
+			.update(getTable())
+			.set(getTable().FIRST_NAME, firstName)
+			.set(getTable().LAST_NAME, lastName)
+			.where(getIdColumn().eq(personId))
+			.execute();
+		}
+		catch (SQLException e) {
+			getLogger().error("Failed to execute updateName(). exception: ", e);
+		}
 	}
 }

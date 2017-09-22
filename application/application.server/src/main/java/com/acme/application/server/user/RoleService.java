@@ -1,6 +1,9 @@
 package com.acme.application.server.user;
 
 import java.security.Permission;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -12,16 +15,17 @@ import org.eclipse.scout.rt.shared.data.page.AbstractTablePageData;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.eclipse.scout.rt.shared.services.common.security.IPermissionService;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.acme.application.database.or.app.tables.Role;
-import com.acme.application.database.or.app.tables.RolePermission;
-import com.acme.application.database.or.app.tables.records.RolePermissionRecord;
-import com.acme.application.database.or.app.tables.records.RoleRecord;
+import com.acme.application.database.or.core.tables.Role;
+import com.acme.application.database.or.core.tables.RolePermission;
+import com.acme.application.database.or.core.tables.records.RolePermissionRecord;
+import com.acme.application.database.or.core.tables.records.RoleRecord;
 import com.acme.application.database.table.RoleTable;
 import com.acme.application.server.ServerSession;
-import com.acme.application.server.common.BaseService;
+import com.acme.application.server.common.AbstractBaseService;
 import com.acme.application.server.security.PermissionService;
 import com.acme.application.shared.role.IRoleService;
 import com.acme.application.shared.role.PermissionTablePageData;
@@ -31,35 +35,21 @@ import com.acme.application.shared.role.RoleFormData.PermissionTable.PermissionT
 import com.acme.application.shared.role.RoleTablePageData;
 import com.acme.application.shared.role.RoleTablePageData.RoleTableRowData;
 
-public class RoleService extends BaseService implements IRoleService {
+public class RoleService extends AbstractBaseService<Role, RoleRecord> implements IRoleService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(RoleService.class);
-
-
-	/**
-	 * Returns true iff the role specified by the provided name exists.
-	 */
 	@Override
-	public boolean exists(String role) {
-		Role rt = Role.ROLE;
-		DSLContext ctx = getContext();
-
-		return ctx.fetchExists(
-				ctx.select()
-				.from(rt)
-				.where(rt.NAME.eq(role)));
+	public Role getTable() {
+		return Role.ROLE;
 	}
 
-	/**
-	 * Returns the role object for the role specified by the provided name.
-	 */
-	public RoleRecord get(String role) {
-		Role rt = Role.ROLE;
+	@Override
+	public Field<String> getIdColumn() {
+		return Role.ROLE.NAME;
+	}
 
-		return getContext()
-				.selectFrom(rt)
-				.where(rt.NAME.eq(role))
-				.fetchOne();
+	@Override
+	public Logger getLogger() {
+		return LoggerFactory.getLogger(RoleService.class);
 	}
 
 	/**
@@ -80,79 +70,66 @@ public class RoleService extends BaseService implements IRoleService {
 	}
 
 	/**
-	 * Returns all active available roles.
-	 */
-	public List<RoleRecord> getAll() {
-		return getAll(true);
-	}
-
-	/**
-	 * Returns all available roles.
-	 */
-	public List<RoleRecord> getAll(boolean active) {
-		return getContext()
-				.selectFrom(Role.ROLE)
-				.fetchStream()
-				.filter(role -> role.getActive() == active)
-				.collect(Collectors.toList());
-	}
-
-	/**
 	 * Returns the set of permissions for the role specified by the provided name.
 	 */
 	public List<Permission> getPermissions(String role) {
 		RolePermission rpt = RolePermission.ROLE_PERMISSION;
 		PermissionService permissionService = BEANS.get(PermissionService.class);
 
-		return getContext()
-				.select(rpt.PERMISSION)
-				.from(rpt)
-				.where(rpt.ROLE_NAME.eq(role))
-				.fetchStream()
-				.map(record -> {
-					String permissionId = rpt.field(rpt.PERMISSION).getValue(record);
-					return permissionService.getPermission(permissionId);
-				})
-				.collect(Collectors.toList());
+		try(Connection connection = getConnection()) {
+			return getContext(connection)
+					.select(rpt.PERMISSION)
+					.from(rpt)
+					.where(rpt.ROLE_NAME.eq(role))
+					.fetchStream()
+					.map(record -> {
+						String permissionId = rpt.field(rpt.PERMISSION).getValue(record);
+						return permissionService.getPermission(permissionId);
+					})
+					.collect(Collectors.toList());
+		}
+		catch (SQLException e) {
+			getLogger().error("Failed to execute getPermissions(). role: {}, exception: ", role, e);
+		}
+
+		return new ArrayList<Permission>();
 	}
 
 	/**
 	 * Persists the provided role, including associated permissions.
 	 */
 	public void store(RoleRecord role, List<String> permissions) {
-		LOG.info("persisting role {}", role);
+		getLogger().info("persisting role {}", role);
 
-		store(role);
+		store(role.getName(), role);
 		storeRolePermissions(role, permissions);
 	}
-
-	/**
-	 * Persists the provided role.
-	 */
-	private void store(RoleRecord role) {
-		LOG.info("persist role {}", role);
-
-		if(exists(role.getName())) { getContext().executeUpdate(role); }
-		else { getContext().executeInsert(role); }
-	}	
 
 	/**
 	 * Persists the provided role permission.
 	 */
 	private void storeRolePermissions(RoleRecord role, List<String> permissions) {
+		try(Connection connection = getConnection()) {
+			DSLContext context = getContext(connection);
 
-		// delete existing role permissions
-		String roleName = role.getName();
-		RolePermission rpt = RolePermission.ROLE_PERMISSION;
-		getContext()
-		.deleteFrom(rpt)
-		.where(rpt.ROLE_NAME.eq(roleName))
-		.execute();
+			// delete existing role permissions
+			String roleName = role.getName();
+			RolePermission rpt = RolePermission.ROLE_PERMISSION;
 
-		// add new user roles
-		permissions.stream()
-		.forEach(permission -> getContext()
-				.executeInsert(new RolePermissionRecord(roleName, permission)));
+			context
+			.deleteFrom(rpt)
+			.where(rpt.ROLE_NAME.eq(roleName))
+			.execute();
+
+			// add new user roles
+			permissions
+			.stream()
+			.forEach(permission -> context
+					.executeInsert(new RolePermissionRecord(roleName, permission)));
+		}
+		catch (SQLException e) {
+			getLogger().error("Failed to execute storeRolePermissions(). role: {}, exception: ", role, e);
+		}
 	}
 
 	@Override
@@ -172,13 +149,13 @@ public class RoleService extends BaseService implements IRoleService {
 
 		return pageData;
 	}
-	
+
 
 	@Override
 	public AbstractTablePageData getPermissionTableData(SearchFilter filter) {
 		PermissionTablePageData pageData = new PermissionTablePageData();
 		Locale locale = ServerSession.get().getLocale();
-		
+
 		BEANS.get(PermissionService.class)
 		.getAllPermissionClasses()
 		.stream()
@@ -190,10 +167,10 @@ public class RoleService extends BaseService implements IRoleService {
 			row.setGroup(TEXTS.getWithFallback(locale, group, group));
 			row.setText(TEXTS.getWithFallback(locale, id, id));
 		});
-		
+
 		return pageData;
 	}
-	
+
 
 	@Override
 	public RoleFormData load(RoleFormData formData) {
@@ -217,7 +194,7 @@ public class RoleService extends BaseService implements IRoleService {
 	private void addPermissionRows(RoleFormData formData, List<String> permissions) {
 		String role = formData.getRoleId().getValue();
 		boolean isRoot = RoleTable.ROOT.equals(role);
-		
+
 		PermissionTable table = formData.getPermissionTable();
 		table.clearRows();
 
@@ -230,7 +207,7 @@ public class RoleService extends BaseService implements IRoleService {
 			String group = TEXTS.getWithFallback(groupId, groupId);
 			String name = TEXTS.getWithFallback(id, id);
 			PermissionTableRowData row = table.addRow();
-			
+
 			row.setId(id);
 			row.setGroup(group);
 			row.setText(name);
@@ -250,9 +227,9 @@ public class RoleService extends BaseService implements IRoleService {
 					return row.getId();
 				})
 				.collect(Collectors.toList());
-		
+
 		store(record, permissions);
-		
+
 		return formData;
 	}
 }
