@@ -14,6 +14,7 @@ import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.code.ICodeType;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
+import org.eclipse.scout.rt.shared.services.common.security.ACCESS;
 
 import com.acme.application.client.common.AbstractActiveColumn;
 import com.acme.application.client.common.AbstractEditMenu;
@@ -21,9 +22,13 @@ import com.acme.application.client.common.AbstractExportableTable;
 import com.acme.application.client.common.AbstractIdColumn;
 import com.acme.application.client.common.AbstractNewMenu;
 import com.acme.application.group_a.client.sv.SicherungTablePage.Table;
+import com.acme.application.group_a.shared.sv.PageSicherungPermission;
+import com.acme.application.group_a.shared.sv.CreateSicherungPermission;
 import com.acme.application.group_a.shared.sv.EtageCodeType;
 import com.acme.application.group_a.shared.sv.ISicherungService;
+import com.acme.application.group_a.shared.sv.ReadSicherungPermission;
 import com.acme.application.group_a.shared.sv.SicherungTablePageData;
+import com.acme.application.group_a.shared.sv.UpdateSicherungPermission;
 
 @Data(SicherungTablePageData.class)
 public class SicherungTablePage extends AbstractPageWithTable<Table> {
@@ -37,7 +42,12 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 	protected boolean getConfiguredLeaf() {
 		return true;
 	}
-
+	
+	@Override
+	protected void execInitPage() {
+		setVisibleGranted(ACCESS.check(new PageSicherungPermission()));
+	}
+	
 	@Override
 	protected void execLoadData(SearchFilter filter) {
 		importPageData(BEANS.get(ISicherungService.class).getSicherungTableData(filter));
@@ -115,6 +125,11 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 		public class NewMenu extends AbstractNewMenu {
 
 			@Override
+			protected void execInitAction() {
+				setVisibleGranted(ACCESS.check(new CreateSicherungPermission()));
+			}
+			
+			@Override
 			protected void execAction() {
 				SicherungForm form = new SicherungForm();
 				form.addFormListener(new SicherungFormListener());
@@ -124,6 +139,11 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 
 		@Order(20)
 		public class EditMenu extends AbstractEditMenu {
+
+			@Override
+			protected void execInitAction() {
+				setVisibleGranted(ACCESS.check(new ReadSicherungPermission()) || ACCESS.check(new UpdateSicherungPermission()));
+			}
 
 			@Override
 			protected void execAction() {

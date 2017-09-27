@@ -32,11 +32,11 @@ import com.acme.application.group_a.client.sv.SicherungForm.MainBox.TobBox.Pruef
 import com.acme.application.group_a.client.sv.SicherungForm.MainBox.TobBox.SicherungField;
 import com.acme.application.group_a.client.sv.SicherungForm.MainBox.TobBox.StandortField;
 import com.acme.application.group_a.client.sv.SicherungForm.MainBox.TobBox.VisumField;
-import com.acme.application.group_a.shared.sv.CreateSicherungsPermission;
+import com.acme.application.group_a.shared.sv.CreateSicherungPermission;
 import com.acme.application.group_a.shared.sv.EtageCodeType;
 import com.acme.application.group_a.shared.sv.ISicherungService;
 import com.acme.application.group_a.shared.sv.SicherungFormData;
-import com.acme.application.group_a.shared.sv.UpdateSicherungsPermission;
+import com.acme.application.group_a.shared.sv.UpdateSicherungPermission;
 
 @FormData(value = SicherungFormData.class, sdkCommand = FormData.SdkCommand.CREATE)
 public class SicherungForm extends AbstractForm {
@@ -314,13 +314,14 @@ public class SicherungForm extends AbstractForm {
 
 		@Override
 		protected void execLoad() {
+			setEnabledPermission(new UpdateSicherungPermission());
+			
 			ISicherungService service = BEANS.get(ISicherungService.class);
 			SicherungFormData formData = new SicherungFormData();
 			exportFormData(formData);
 			formData = service.load(formData);
 			importFormData(formData);
 
-			setEnabledPermission(new UpdateSicherungsPermission());
 			getForm().setSubTitle(calculateSubTitle());			
 		}
 
@@ -342,13 +343,14 @@ public class SicherungForm extends AbstractForm {
 
 		@Override
 		protected void execLoad() {
+			setEnabledPermission(new CreateSicherungPermission());
+			
 			ISicherungService service = BEANS.get(ISicherungService.class);
 			SicherungFormData formData = new SicherungFormData();
 			exportFormData(formData);
 			formData = service.prepareCreate(formData);
 			importFormData(formData);
 
-			setEnabledPermission(new CreateSicherungsPermission());
 			getForm().setSubTitle(calculateSubTitle());			
 		}
 

@@ -16,6 +16,8 @@ import org.eclipse.scout.rt.platform.IPlatformListener;
 import org.eclipse.scout.rt.platform.PlatformEvent;
 import org.eclipse.scout.rt.shared.extension.IExtensionRegistry;
 
+import com.acme.application.group_a.client.sv.CodeNodePageExtension;
+
 public class PlatformListener implements IPlatformListener {
 
   @Override
@@ -26,11 +28,10 @@ public class PlatformListener implements IPlatformListener {
   }
 
   private void registerExtensions() {
-    @SuppressWarnings("unused")
 	IExtensionRegistry extensionRegistry = BEANS.get(IExtensionRegistry.class);
 
     // Register UI extensions
-    // extensionRegistry.register(EventPageExtension.class);
+    extensionRegistry.register(CodeNodePageExtension.class);
 
     // Register DTO extensions
     // extensionRegistry.register(PersonTablePageDataExtension.class);

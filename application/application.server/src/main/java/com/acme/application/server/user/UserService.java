@@ -15,6 +15,7 @@ import org.eclipse.scout.rt.platform.util.ObjectUtility;
 import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
+import org.eclipse.scout.rt.shared.services.common.security.IAccessControlService;
 import org.eclipse.scout.rt.shared.services.lookup.ILookupRow;
 import org.eclipse.scout.rt.shared.services.lookup.LookupRow;
 import org.jooq.DSLContext;
@@ -94,6 +95,8 @@ public class UserService extends AbstractBaseService<User, UserRecord> implement
 		BEANS.get(PersonService.class).store(person.getId(), person);
 		store(user.getUsername(), user);
 		storeUserRoles(user, roleIds);
+		
+		BEANS.get(IAccessControlService.class).clearCache();		
 	}
 
 	private void storeUserRoles(UserRecord user, List<String> roles) {

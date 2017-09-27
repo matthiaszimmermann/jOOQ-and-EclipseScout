@@ -1,24 +1,25 @@
 package com.acme.application.client.code;
 
+import java.math.BigDecimal;
 import java.security.Permission;
 
 import org.eclipse.scout.rt.client.dto.FormData;
 import org.eclipse.scout.rt.client.ui.form.AbstractForm;
 import org.eclipse.scout.rt.client.ui.form.IForm;
+import org.eclipse.scout.rt.client.ui.form.fields.bigdecimalfield.AbstractBigDecimalField;
 import org.eclipse.scout.rt.client.ui.form.fields.booleanfield.AbstractBooleanField;
 import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractCancelButton;
 import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractOkButton;
 import org.eclipse.scout.rt.client.ui.form.fields.groupbox.AbstractGroupBox;
-import org.eclipse.scout.rt.client.ui.form.fields.sequencebox.AbstractSequenceBox;
 import org.eclipse.scout.rt.client.ui.form.fields.stringfield.AbstractStringField;
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.shared.TEXTS;
 
 import com.acme.application.client.code.ApplicationCodeForm.MainBox.CancelButton;
-import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.MainInfoBox;
-import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.MainInfoBox.CodeIdField;
-import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.MainInfoBox.CodeTextField;
+import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.CodeIdField;
+import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.CodeTextField;
+import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.OrderField;
 import com.acme.application.client.code.ApplicationCodeForm.MainBox.OkButton;
 import com.acme.application.client.common.AbstractDirtyFormHandler;
 import com.acme.application.client.role.RoleForm.MainBox.RoleBox;
@@ -52,7 +53,7 @@ public class ApplicationCodeForm extends AbstractForm {
 
 	public void setDisplayMode(DisplayMode mode) {
 		getCodeTextField().setMandatory(true);
-		
+
 		switch (mode) {
 		case CREATE:
 			getCodeIdField().setEnabled(false);
@@ -109,8 +110,8 @@ public class ApplicationCodeForm extends AbstractForm {
 		return getFieldByClass(CancelButton.class);
 	}
 
-	public MainInfoBox getMySequenceBox() {
-		return getFieldByClass(MainInfoBox.class);
+	public OrderField getOrderField() {
+		return getFieldByClass(OrderField.class);
 	}
 
 	public OkButton getOkButton() {
@@ -131,51 +132,54 @@ public class ApplicationCodeForm extends AbstractForm {
 		@Order(1000)
 		public class CodeBox extends AbstractGroupBox {
 
-
 			@Order(1000)
-			public class MainInfoBox extends AbstractSequenceBox {
+			public class CodeTextField extends AbstractStringField {
 
 				@Override
-				protected int getConfiguredGridW() {
-					return 2;
-				}
-				
-				@Order(1000)
-				public class CodeTextField extends AbstractStringField {
-
-					@Override
-					protected String getConfiguredLabel() {
-						return TEXTS.get("Text");
-					}
-
-					@Override
-					protected int getConfiguredMaxLength() {
-						return 128;
-					}
-				}
-
-				@Order(2000)
-				public class CodeIdField extends AbstractStringField {
-
-					@Override
-					protected String getConfiguredLabel() {
-						return TEXTS.get("CodeId");
-					}
-
-					@Override
-					protected boolean getConfiguredMandatory() {
-						return true;
-					}
-
-					@Override
-					protected int getConfiguredMaxLength() {
-						return 128;
-					}
+				protected String getConfiguredLabel() {
+					return TEXTS.get("Text");
 				}
 
 				@Override
-				protected boolean getConfiguredAutoCheckFromTo() {
-					return false;
+				protected int getConfiguredMaxLength() {
+					return 128;
+				}
+			}
+
+			@Order(2000)
+			public class CodeIdField extends AbstractStringField {
+
+				@Override
+				protected String getConfiguredLabel() {
+					return TEXTS.get("CodeId");
+				}
+
+				@Override
+				protected boolean getConfiguredMandatory() {
+					return true;
+				}
+
+				@Override
+				protected int getConfiguredMaxLength() {
+					return 128;
+				}
+			}
+
+			@Order(2000)
+			public class OrderField extends AbstractBigDecimalField {
+				@Override
+				protected String getConfiguredLabel() {
+					return TEXTS.get("Order");
+				}
+
+				@Override
+				protected BigDecimal getConfiguredMinValue() {
+					return new BigDecimal("-9999999999999999999");
+				}
+
+				@Override
+				protected BigDecimal getConfiguredMaxValue() {
+					return new BigDecimal("9999999999999999999");
 				}
 			}
 
@@ -201,14 +205,14 @@ public class ApplicationCodeForm extends AbstractForm {
 
 		@Override
 		protected void execLoad() {
-//			setEnabledPermission(new UpdateApplicationCodePermission());
-//
-//			ApplicationCodeFormData formData = new ApplicationCodeFormData();
-//			exportFormData(formData);
-//			formData = BEANS.get(IApplicationCodeService.class).load(formData);
-//			importFormData(formData);
-//
-//			getForm().setSubTitle(calculateSubTitle());
+			//			setEnabledPermission(new UpdateApplicationCodePermission());
+			//
+			//			ApplicationCodeFormData formData = new ApplicationCodeFormData();
+			//			exportFormData(formData);
+			//			formData = BEANS.get(IApplicationCodeService.class).load(formData);
+			//			importFormData(formData);
+			//
+			//			getForm().setSubTitle(calculateSubTitle());
 			load(new UpdateApplicationCodePermission());
 		}
 
@@ -263,12 +267,12 @@ public class ApplicationCodeForm extends AbstractForm {
 
 		setSubTitle(calculateSubTitle());
 	}
-	
+
 	private void store()  {
 		ApplicationCodeFormData formData = new ApplicationCodeFormData();
 		exportFormData(formData);
 		formData = BEANS.get(IApplicationCodeService.class).store(formData);
-		
+
 		String typeId = formData.getCodeTypeId();
 		IApplicationCodeType type = ApplicationCodeUtility.getCodeType(typeId);
 		ApplicationCodeUtility.reload(type.getClass());

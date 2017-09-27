@@ -1,5 +1,7 @@
 package com.acme.application.shared.code;
 
+import java.math.BigDecimal;
+
 import javax.annotation.Generated;
 
 import org.eclipse.scout.rt.shared.data.basic.table.AbstractTableRowData;
@@ -55,10 +57,12 @@ public class ApplicationCodePageData extends AbstractTablePageData {
 		public static final String id = "id";
 		public static final String type = "type";
 		public static final String text = "text";
+		public static final String order = "order";
 		public static final String active = "active";
 		private String m_id;
 		private String m_type;
 		private String m_text;
+		private BigDecimal m_order;
 		private Boolean m_active;
 
 		public String getId() {
@@ -83,6 +87,14 @@ public class ApplicationCodePageData extends AbstractTablePageData {
 
 		public void setText(String newText) {
 			m_text = newText;
+		}
+
+		public BigDecimal getOrder() {
+			return m_order;
+		}
+
+		public void setOrder(BigDecimal newOrder) {
+			m_order = newOrder;
 		}
 
 		public Boolean getActive() {

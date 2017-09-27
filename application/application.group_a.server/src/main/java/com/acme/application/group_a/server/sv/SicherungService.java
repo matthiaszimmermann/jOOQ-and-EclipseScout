@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.acme.application.database.or.sv.tables.Fi;
 import com.acme.application.database.or.sv.tables.records.FiRecord;
 import com.acme.application.database.table.TableUtility;
-import com.acme.application.group_a.shared.sv.CreateSicherungsPermission;
+import com.acme.application.group_a.shared.sv.CreateSicherungPermission;
 import com.acme.application.group_a.shared.sv.ISicherungService;
-import com.acme.application.group_a.shared.sv.ReadSicherungsPermission;
+import com.acme.application.group_a.shared.sv.ReadSicherungPermission;
 import com.acme.application.group_a.shared.sv.SicherungFormData;
 import com.acme.application.group_a.shared.sv.SicherungTablePageData;
 import com.acme.application.group_a.shared.sv.SicherungTablePageData.SicherungTableRowData;
-import com.acme.application.group_a.shared.sv.UpdateSicherungsPermission;
+import com.acme.application.group_a.shared.sv.UpdateSicherungPermission;
 import com.acme.application.server.common.AbstractBaseService;
 
 public class SicherungService extends AbstractBaseService<Fi, FiRecord> implements ISicherungService {
@@ -39,7 +39,7 @@ public class SicherungService extends AbstractBaseService<Fi, FiRecord> implemen
 
 	@Override
 	public SicherungFormData prepareCreate(SicherungFormData formData) {
-		if (!ACCESS.check(new CreateSicherungsPermission())) {
+		if (!ACCESS.check(new CreateSicherungPermission())) {
 			throw new VetoException(TEXTS.get("AuthorizationFailed"));
 		}
 		
@@ -50,16 +50,17 @@ public class SicherungService extends AbstractBaseService<Fi, FiRecord> implemen
 
 	@Override
 	public SicherungFormData create(SicherungFormData formData) {
-		if (!ACCESS.check(new CreateSicherungsPermission())) {
+		if (!ACCESS.check(new CreateSicherungPermission())) {
 			throw new VetoException(TEXTS.get("AuthorizationFailed"));
 		}
-		
-		return store(formData);
+
+		store(formData.getId(), mapToRecord(formData)); 
+		return formData;
 	}
 
 	@Override
 	public SicherungFormData load(SicherungFormData formData) {
-		if (!ACCESS.check(new ReadSicherungsPermission())) {
+		if (!ACCESS.check(new ReadSicherungPermission())) {
 			throw new VetoException(TEXTS.get("AuthorizationFailed"));
 		}
 
@@ -69,7 +70,7 @@ public class SicherungService extends AbstractBaseService<Fi, FiRecord> implemen
 
 	@Override
 	public SicherungFormData store(SicherungFormData formData) {
-		if (!ACCESS.check(new UpdateSicherungsPermission())) {
+		if (!ACCESS.check(new UpdateSicherungPermission())) {
 			throw new VetoException(TEXTS.get("AuthorizationFailed"));
 		}
 

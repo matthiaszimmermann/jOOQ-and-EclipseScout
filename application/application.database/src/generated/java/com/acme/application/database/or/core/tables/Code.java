@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Code extends TableImpl<CodeRecord> {
 
-    private static final long serialVersionUID = 1736759148;
+    private static final long serialVersionUID = -110347617;
 
     /**
      * The reference instance of <code>core.CODE</code>
@@ -58,6 +58,11 @@ public class Code extends TableImpl<CodeRecord> {
      * The column <code>core.CODE.TYPE_ID</code>.
      */
     public final TableField<CodeRecord, String> TYPE_ID = createField("TYPE_ID", org.jooq.impl.SQLDataType.VARCHAR.length(36).nullable(false), this, "");
+
+    /**
+     * The column <code>core.CODE.ORDER</code>.
+     */
+    public final TableField<CodeRecord, Double> ORDER = createField("ORDER", org.jooq.impl.SQLDataType.DOUBLE, this, "");
 
     /**
      * The column <code>core.CODE.ICON</code>.

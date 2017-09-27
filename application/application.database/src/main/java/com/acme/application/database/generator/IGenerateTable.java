@@ -26,6 +26,8 @@ public interface IGenerateTable extends IDatabaseObject {
 	public static final DataType<String> TYPE_STRING_L = SQLDataType.VARCHAR.length(512);
 	public static final DataType<String> TYPE_STRING_XL = SQLDataType.VARCHAR.length(1024);
 	
+	public static final DataType<Double> TYPE_DOUBLE = SQLDataType.DOUBLE;
+	
 	public static final DataType<byte[]> TYPE_BLOB = SQLDataType.VARBINARY;
 	public static final DataType<UInteger> TYPE_SIZE = SQLDataType.INTEGERUNSIGNED;
 	

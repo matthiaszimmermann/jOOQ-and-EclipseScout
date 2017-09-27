@@ -8,7 +8,6 @@ public class SexCodeType extends BaseCodeType {
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * ID taken from class TableDataInitializer. 
 	 * IMPORTANT: This ID links the code type to the database content
 	 */
 	public static final String ID = "17f42353-e6e6-4654-a879-02535cc9c44f";

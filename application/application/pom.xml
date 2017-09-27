@@ -34,8 +34,10 @@
 		<module>../application.group_a.server</module>
 		<module>../application.docx4j</module>
 		<module>../application.server.app.war</module>
+		<module>../application.server.app.dev</module>
 		<module>../application.ui.html</module>
 		<module>../application.ui.html.app.war</module>
+		<module>../application.ui.html.app.dev</module>
 		<module>../application.all.app.dev</module>
 	</modules>
 

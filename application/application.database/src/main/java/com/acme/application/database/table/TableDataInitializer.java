@@ -1,7 +1,6 @@
 package com.acme.application.database.table;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -45,9 +44,9 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	public static final TypeRecord TYPE_SEX = new TypeRecord(TYPE_ID_SEX, CodeTypeEnum.STRING.type());
 
 	// Male/female code ID's need to match with Java code
-	public static final CodeRecord CODE_MALE = new CodeRecord("M", TYPE_ID_SEX, null, null, true);
-	public static final CodeRecord CODE_FEMALE = new CodeRecord("F", TYPE_ID_SEX, null, null, true);
-	public static final CodeRecord CODE_UNDEFINED = new CodeRecord("U", TYPE_ID_SEX, null, null, true);
+	public static final CodeRecord CODE_FEMALE = new CodeRecord("F", TYPE_ID_SEX, 10.0, null, null, true);
+	public static final CodeRecord CODE_MALE = new CodeRecord("M", TYPE_ID_SEX, 20.0, null, null, true);
+	public static final CodeRecord CODE_UNDEFINED = new CodeRecord("U", TYPE_ID_SEX, 30.0, null, null, true);
 
 	public static final PersonRecord PERSON_ROOT = new PersonRecord("8be7647c-a5d4-408f-b7b6-7b36461b56c4", "Root", "", CODE_MALE.getId(), true);
 	public static final PersonRecord PERSON_ALICE = new PersonRecord("368a17b5-eda6-4d98-ae89-114e6244736c", "Alice", "", CODE_FEMALE.getId(), true);
@@ -98,6 +97,17 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	public static final String TYPE_ID_ETAGE = EtageCodeType.ID;
 	public static final TypeRecord TYPE_ETAGE = new TypeRecord(TYPE_ID_ETAGE, CodeTypeEnum.STRING.type());
 
+	public static final CodeRecord CODE_UG = new CodeRecord("UG", TYPE_ID_ETAGE, -10.0, null, null, true);
+	public static final CodeRecord CODE_EG = new CodeRecord("EG", TYPE_ID_ETAGE, 0.0, null, null, true);
+	public static final CodeRecord CODE_OG_1 = new CodeRecord("OG01", TYPE_ID_ETAGE, 10.0, null, null, true);
+	public static final CodeRecord CODE_OG_2 = new CodeRecord("OG02", TYPE_ID_ETAGE, 20.0 , null, null, true);
+
+	public static final TextRecord TEXT_TYPE_ETAGE = new TextRecord(TYPE_ID_ETAGE, TextTable.LOCALE_DEFAULT, "Floor");
+	public static final TextRecord TEXT_CODE_UG = new TextRecord(CODE_UG.getId(), TextTable.LOCALE_DEFAULT, "UG");
+	public static final TextRecord TEXT_CODE_EG = new TextRecord(CODE_EG.getId(), TextTable.LOCALE_DEFAULT, "EG");
+	public static final TextRecord TEXT_CODE_OG_1 = new TextRecord(CODE_OG_1.getId(), TextTable.LOCALE_DEFAULT, "1.OG");
+	public static final TextRecord TEXT_CODE_OG_2 = new TextRecord(CODE_OG_2.getId(), TextTable.LOCALE_DEFAULT, "2.OG");
+
 	public static final FiRecord FI_700_1 = new FiRecord()
 			.with(Fi.FI.ID, "cf3b8996-4e6b-4016-97cf-29d803d14aa6")
 			.with(Fi.FI.GEB_NR, "700")
@@ -108,6 +118,9 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 			.with(Fi.FI.SICHERUNG, "F 201")
 			.with(Fi.FI.IF, "30mA")
 			.with(Fi.FI.ACTIVE, true);
+
+	//----------------------------------------------------------------------------------//
+	private int index;
 
 	//----------------------------------------------------------------------------------//
 
@@ -138,6 +151,18 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	 */
 	private void initializeSv(DSLContext ctx) {
 		insertFi(ctx);
+
+		insert(ctx, TYPE_ETAGE);
+		insert(ctx, CODE_UG);
+		insert(ctx, CODE_EG);
+		insert(ctx, CODE_OG_1);
+		insert(ctx, CODE_OG_2);
+
+		insert(ctx, TEXT_TYPE_ETAGE);
+		insert(ctx, TEXT_CODE_UG);
+		insert(ctx, TEXT_CODE_EG);
+		insert(ctx, TEXT_CODE_OG_1);
+		insert(ctx, TEXT_CODE_OG_2);
 	}
 
 	private void insertFi(DSLContext ctx) {
@@ -171,8 +196,6 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 		insertLocaleCodeType(ctx);
 		insertFileCodeType(ctx);
 		insertSexCodeType(ctx);
-
-		insert(ctx, TYPE_ETAGE);
 	}
 
 	private void insertFileCodeType(DSLContext ctx) {
@@ -186,11 +209,13 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 
 	private void insertLocaleCodeType(DSLContext ctx) {
 		insert(ctx, TYPE_LOCALE);
+		index = 0;
 
 		Arrays.stream(Locale.getAvailableLocales())
 		.forEach(locale -> { 
-			CodeRecord code = new CodeRecord(locale.toLanguageTag(), TYPE_ID_LOCALE, null, null, true);
+			CodeRecord code = new CodeRecord(locale.toLanguageTag(), TYPE_ID_LOCALE, null, null, null, true);
 			insert(ctx, code);
+			index += 10;
 
 			Locale locDefault = Locale.forLanguageTag(TextTable.LOCALE_DEFAULT);
 			TextRecord text = new TextRecord(code.getId(), locDefault.toLanguageTag(), locale.getDisplayName(locDefault));
@@ -199,6 +224,7 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	}
 
 	private void insertTexts(DSLContext ctx) {
+		insert(ctx, TEXT_TYPE_LOCALE);
 		insert(ctx, TEXT_TYPE_FILE);
 		insert(ctx, TEXT_TYPE_SEX);
 
@@ -240,11 +266,12 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	private void insertSampleDocuments(DSLContext ctx) {
 		insert(ctx, DOCUMENT_ALICE_1);
 
+		// TODO does not work on tomcat, find out why
 		// load image file from src/main/resource folder into database
-		byte [] content = loadResourceBytes("file/" + DOCUMENT_LOGO_NAME);
-		DOCUMENT_ALICE_2.setContent(content);
-		DOCUMENT_ALICE_2.setSize(BigDecimal.valueOf(content.length));
-		insert(ctx, DOCUMENT_ALICE_2);
+//		byte [] content = loadResourceBytes("file/" + DOCUMENT_LOGO_NAME);
+//		DOCUMENT_ALICE_2.setContent(content);
+//		DOCUMENT_ALICE_2.setSize(BigDecimal.valueOf(content.length));
+//		insert(ctx, DOCUMENT_ALICE_2);
 	}
 
 	private void insert(DSLContext ctx, org.jooq.Record record) {
@@ -276,15 +303,27 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	}
 
 	private byte [] loadResourceBytes(String fileName) {
-		ClassLoader classLoader = getClass().getClassLoader();
-		File file = new File(classLoader.getResource(fileName).getFile());
 		byte [] content = null;
-
+		
 		try {
+			ClassLoader classLoader = getClass().getClassLoader();
+			String filePath = classLoader.getResource(fileName).getPath();
+			LOG.info("Raw path {}", filePath);
+		
+			if(System.getProperty("os.name").contains("indow")) {
+				if(filePath.startsWith("file:/") && filePath.charAt(7) == ':') {
+					filePath = filePath.substring(6);
+				}
+			}
+			
+			LOG.info("Processed path {}", filePath);
+			File file = new File(filePath);
+
 			content = Files.readAllBytes(file.toPath());
+			LOG.info("Resource {} successfully loaded", filePath);
 		} 
-		catch (IOException e) {
-			LOG.error("Exception readding file {}", fileName, e);
+		catch (Exception e) {
+			LOG.error("Exception reading resource {}", fileName, e);
 		}
 
 		return content;

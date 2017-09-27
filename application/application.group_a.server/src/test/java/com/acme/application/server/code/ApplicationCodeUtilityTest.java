@@ -23,8 +23,6 @@ import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.group_a.shared.sv.EtageCodeType;
 import com.acme.application.server.ServerSession;
 import com.acme.application.shared.code.ApplicationCodeUtility;
-import com.acme.application.shared.code.LocaleCodeType;
-import com.acme.application.shared.code.SexCodeType;
 
 @RunWithSubject("root")
 @RunWith(ServerTestRunner.class)
@@ -46,28 +44,6 @@ public class ApplicationCodeUtilityTest {
 		if(connection != null) {
 			connection.close();
 		}
-	}
-
-	@Test
-	public void testStaticSexCodes() {
-		// test exists methods
-		assertTrue("Sex code type not found", ApplicationCodeUtility.exists(SexCodeType.class));
-		assertTrue("Male sex code not found", ApplicationCodeUtility.exists(SexCodeType.class, TableDataInitializer.CODE_MALE.getId()));
-		assertTrue("Female sex code not found", ApplicationCodeUtility.exists(SexCodeType.class, TableDataInitializer.CODE_FEMALE.getId()));
-
-		// test get methods via code type class
-		ICode<String> mCode = ApplicationCodeUtility.getCode(SexCodeType.class, TableDataInitializer.CODE_MALE.getId());
-		assertNotNull("Sex code type not found", ApplicationCodeUtility.getCodeType(SexCodeType.class));
-		assertNotNull("Male code not found", mCode);
-		assertEquals("Male code has unexpected ID", TableDataInitializer.CODE_MALE.getId(), mCode.getId());
-		assertTrue("Male code is inactive", mCode.isActive());
-		
-		// test get methods via code type id
-		assertNotNull("Sex code type not found", ApplicationCodeUtility.getCodeType(SexCodeType.ID));
-		ICode<String> mCode2 = ApplicationCodeUtility.getCode(SexCodeType.ID, TableDataInitializer.CODE_MALE.getId());
-		assertNotNull("Male code not found", mCode2);
-		assertEquals("Male code has unexpected ID", TableDataInitializer.CODE_MALE.getId(), mCode2.getId());
-		assertTrue("Male code is inactive", mCode2.isActive());
 	}
 
 	@Test
@@ -93,34 +69,14 @@ public class ApplicationCodeUtilityTest {
 	}
 
 	@Test
-	public void testDynamicSexCodes() {
-		List<? extends ICode<String>> codes = ApplicationCodeUtility.getCodes(SexCodeType.class);
-		assertEquals("Unexpected number of sex codes", 3, codes.size());
-		
-		ICode<String> uCode = ApplicationCodeUtility.getCode(SexCodeType.class, "U");
-		assertNotNull("Undefined sex code not found", uCode);
-		assertEquals("Undefined code has unexpected ID", TableDataInitializer.CODE_UNDEFINED.getId(), uCode.getId());
-		assertTrue("Undefined code is inactive", uCode.isActive());
-	}
-
-	@Test
 	public void testDynamicEtageCodes() {
 		List<? extends ICode<String>> codes = ApplicationCodeUtility.getCodes(EtageCodeType.class);
-		assertEquals("Unexpected number of etage codes", 3, codes.size());
+		assertEquals("Unexpected number of etage codes", 4, codes.size());
 		
 		ICode<String> ogCode = ApplicationCodeUtility.getCode(EtageCodeType.class, TableDataInitializer.CODE_OG_2.getId());
 		assertNotNull("OG2 code not found", ogCode);
 		assertEquals("OG2 code has unexpected ID", TableDataInitializer.CODE_OG_2.getId(), ogCode.getId());
 		assertTrue("OG2 code is inactive", ogCode.isActive());
-	}
-
-	@Test
-	public void testDynamicLocaleCodes() {
-		assertTrue("Locale code type not found", ApplicationCodeUtility.exists(LocaleCodeType.class));
-		
-		List<? extends ICode<String>> codes = ApplicationCodeUtility.getCodes(LocaleCodeType.class);
-		assertTrue("Unexpected number of locale codes. Expected 160 or more, found" + codes.size(), codes.size() >= 160);
-		assertTrue("Locale code 'de-CH' not found", ApplicationCodeUtility.exists(LocaleCodeType.class, "de-CH"));
 	}
 
 	protected DSLContext getContext() {

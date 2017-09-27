@@ -13,6 +13,7 @@ import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.data.page.AbstractTablePageData;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
+import org.eclipse.scout.rt.shared.services.common.security.IAccessControlService;
 import org.eclipse.scout.rt.shared.services.common.security.IPermissionService;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -103,6 +104,8 @@ public class RoleService extends AbstractBaseService<Role, RoleRecord> implement
 
 		store(role.getName(), role);
 		storeRolePermissions(role, permissions);
+		
+		BEANS.get(IAccessControlService.class).clearCache();
 	}
 
 	/**

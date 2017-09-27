@@ -11,12 +11,17 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.server.ServerProperties;
 import com.acme.application.server.ServerProperties.DatabaseAutoCreateProperty;
 
 @ApplicationScoped
 public class JooqService {
+
+	Logger LOG = LoggerFactory.getLogger(TableDataInitializer.class);
 
 	private SQLDialect dialect = null;
 	private String jdbcMappingName = null;
@@ -30,7 +35,21 @@ public class JooqService {
 	public JooqService() {
 		super();
 		applyConfigProperties();
+		initializeJdbcDriver();
 		initializeConfiguration();
+	}
+
+	private void initializeJdbcDriver() {
+		// TODO move the class name to a property
+		String jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+		
+		try {
+			Class.forName(jdbcDriver);
+			LOG.info("JDBC Driver {} successfully loaded", jdbcDriver);
+		}
+		catch(ClassNotFoundException e) {
+			LOG.error("Failed to load JDBC Driver {}", jdbcDriver);
+		}
 	}
 
 	/**
@@ -50,14 +69,9 @@ public class JooqService {
 	}
 
 	private void applyConfigProperties() {
-		// FIXME accessing this property does not work
 		dialect = CONFIG.getPropertyValue(ServerProperties.DialectProperty.class);
-//		dialect = SQLDialect.SQLSERVER;
-//		dialect = SQLDialect.DERBY;
-		
 		jdbcMappingName = CONFIG.getPropertyValue(ServerProperties.JdbcMappingNameProperty.class);
 		jdbcMappingName = postProcessMappingName(jdbcMappingName);
-		
 		username = CONFIG.getPropertyValue(ServerProperties.UsernameProperty.class);
 		password = CONFIG.getPropertyValue(ServerProperties.PasswordProperty.class);
 	}

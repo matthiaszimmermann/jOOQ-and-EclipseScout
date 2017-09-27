@@ -1,5 +1,6 @@
 package com.acme.application.server.code;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.exception.VetoException;
+import org.eclipse.scout.rt.platform.util.ObjectUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.code.CodeRow;
 import org.eclipse.scout.rt.shared.services.common.code.ICode;
@@ -84,10 +86,12 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 			IApplicationCodeType codeType = ApplicationCodeUtility.getCodeType(formData.getCodeTypeId());
 			ICode<String> code = ApplicationCodeUtility.getCode(codeType.getCodeTypeClass(), codeId);		
 			formData.getCodeText().setValue(code.getText());
+			formData.getOrder().setValue(BigDecimal.valueOf(code.getOrder()));
 			formData.getActive().setValue(code.isActive());
 		}
 		else {
 			formData.getCodeId().setValue(ApplicationCodeUtility.generateCodeId());
+			formData.getOrder().setValue(BigDecimal.ZERO);
 			formData.getActive().setValue(true);
 		}
 
@@ -112,10 +116,12 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 	private ICodeRow<String> toCodeRow(ApplicationCodeFormData formData) {
 		String id = formData.getCodeId().getValue();
 		String text = formData.getCodeText().getValue();
+		double order = (double) ObjectUtility.nvl(formData.getOrder().getValue().doubleValue(), 0.0);
 		String icon = null;
 		boolean active = formData.getActive().getValue();
 
 		return new CodeRow<String>(id, text)
+				.withOrder(order)
 				.withIconId(icon)
 				.withActive(active);
 	}
@@ -126,9 +132,11 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 	}
 
 	private CodeRecord toCodeRecord(String codeTypeId, ICodeRow<String> codeRow) {
+		double order = codeRow.getOrder();
 		String icon = null;
 		String value = null;
-		return new CodeRecord(codeRow.getKey(), codeTypeId, icon, value, codeRow.isActive());
+		boolean active = codeRow.isActive();
+		return new CodeRecord(codeRow.getKey(), codeTypeId, order, icon, value, active);
 	}
 
 	@Override
@@ -186,7 +194,9 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 				.map(code -> {
 					String id = code.getId();
 					String text = TEXTS.get(locale, id, id);
+					double order = code.getOrder() != null ? code.getOrder() : 0.0;
 					return new CodeRow<String>(id, text)
+							.withOrder(order)
 							.withIconId(code.getIcon())
 							.withActive(code.getActive());
 				})

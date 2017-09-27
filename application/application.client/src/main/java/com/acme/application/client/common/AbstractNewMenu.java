@@ -9,14 +9,8 @@ import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 
 import com.acme.application.shared.FontAwesomeIcons;
-import com.acme.application.shared.role.CreateRolePermission;
 
 public class AbstractNewMenu extends AbstractMenu {
-
-	@Override
-	protected void execInitAction() {
-		setVisiblePermission(new CreateRolePermission());
-	}
 
 	@Override
 	protected String getConfiguredText() {

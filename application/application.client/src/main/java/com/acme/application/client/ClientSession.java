@@ -6,6 +6,7 @@ import org.eclipse.scout.rt.client.AbstractClientSession;
 import org.eclipse.scout.rt.client.IClientSession;
 import org.eclipse.scout.rt.client.session.ClientSessionProvider;
 import org.eclipse.scout.rt.platform.BEANS;
+import org.eclipse.scout.rt.shared.services.common.security.IAccessControlService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +35,16 @@ public class ClientSession extends AbstractClientSession {
 	@Override
 	protected void execLoadSession() {
 	    initializeSharedVariables();
+	    initializePermissions();
 		initializeLocaleTextsAndCodes();
+		
 		setDesktop(new Desktop());
 		
 		LOG.info("Created new client session for '{}' with locale '{}'", getUserId(), getLocale());
+	}
+
+	private void initializePermissions() {
+		BEANS.get(IAccessControlService.class).clearCacheOfCurrentUser();
 	}
 
 	public void initializeLocaleTextsAndCodes() {

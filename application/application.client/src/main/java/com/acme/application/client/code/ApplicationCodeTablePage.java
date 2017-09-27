@@ -1,5 +1,6 @@
 package com.acme.application.client.code;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Set;
 
@@ -8,6 +9,7 @@ import org.eclipse.scout.rt.client.ui.action.menu.AbstractMenu;
 import org.eclipse.scout.rt.client.ui.action.menu.IMenuType;
 import org.eclipse.scout.rt.client.ui.action.menu.TableMenuType;
 import org.eclipse.scout.rt.client.ui.basic.table.ITableRow;
+import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractBigDecimalColumn;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractBooleanColumn;
 import org.eclipse.scout.rt.client.ui.basic.table.columns.AbstractStringColumn;
 import org.eclipse.scout.rt.client.ui.desktop.outline.IOutline;
@@ -48,7 +50,7 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 
 	@Override
 	protected String getConfiguredTitle() {
-		return TEXTS.get(codeType.getId());
+		return TEXTS.get(ClientSession.get().getLocale(), codeType.getId());
 	}
 	
 	@Override
@@ -72,6 +74,7 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 			row.setId(id);
 			row.setType(typeText);
 			row.setText(TEXTS.getWithFallback(locale, id, id));
+			row.setOrder(BigDecimal.valueOf(code.getOrder()));
 			row.setActive(code.isActive());
 		});
 
@@ -221,6 +224,10 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 			return getColumnSet().getColumnByClass(ActiveColumn.class);
 		}
 
+		public OrderColumn getOrderColumn() {
+			return getColumnSet().getColumnByClass(OrderColumn.class);
+		}
+
 		public TextColumn getTextColumn() {
 			return getColumnSet().getColumnByClass(TextColumn.class);
 		}
@@ -279,6 +286,19 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 		}
 
 		@Order(4000)
+		public class OrderColumn extends AbstractBigDecimalColumn {
+			@Override
+			protected String getConfiguredHeaderText() {
+				return TEXTS.get("Order");
+			}
+
+			@Override
+			protected int getConfiguredWidth() {
+				return 100;
+			}
+		}
+
+		@Order(5000)
 		public class ActiveColumn extends AbstractBooleanColumn {
 			@Override
 			protected String getConfiguredHeaderText() {

@@ -53,16 +53,4 @@ public class EtageCodeType extends BaseCodeType {
 			return ID;
 		}
 	}
-
-	@Order(30.0)
-	public static class OG01 extends AbstractCode<String> {
-		private static final long serialVersionUID = 1L;
-
-		public static final String ID = "1.OG";
-
-		@Override
-		public String getId() {
-			return ID;
-		}
-	}
 }

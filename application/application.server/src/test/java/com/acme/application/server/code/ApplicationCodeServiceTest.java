@@ -85,7 +85,7 @@ public class ApplicationCodeServiceTest {
 	public void testAddDynamicSexCode() {
 		int codes = service.getCodeRecords(SexCodeType.ID).size();
 		String codeId = TableUtility.createId();
-		CodeRecord newCode = new CodeRecord(codeId, SexCodeType.ID, null, null, true);
+		CodeRecord newCode = new CodeRecord(codeId, SexCodeType.ID, null, null, null, true);
 		CodeRecord missingCode = service.getCodeRecord(newCode.getTypeId(), newCode.getId());		
 		assertNull("New code should not be here already", missingCode);
 		
@@ -128,7 +128,7 @@ public class ApplicationCodeServiceTest {
 	public void testDynamicLocaleCodes() {
 		List<CodeRecord> codes = service.getCodeRecords(LocaleCodeType.ID);
 		String geChTag = "de-CH";
-		CodeRecord geChCode = new CodeRecord(geChTag, LocaleCodeType.ID, null, null, true);
+		CodeRecord geChCode = new CodeRecord(geChTag, LocaleCodeType.ID, null, null, null, true);
 		
 		assertNotNull("Should not be null: codes", codes);
 		assertTrue("At least 100 codes should have been returned", codes.size() >= 100);

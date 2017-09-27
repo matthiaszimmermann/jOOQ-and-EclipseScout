@@ -2,9 +2,12 @@ package com.acme.application.shared.security;
 
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scout.rt.platform.BEANS;
+import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.eclipse.scout.rt.shared.ISession;
 import org.eclipse.scout.rt.shared.cache.ICacheBuilder;
 import org.eclipse.scout.rt.shared.security.RemoteServiceAccessPermission;
@@ -52,6 +55,7 @@ public class AccessControlService extends AbstractAccessControlService<String> {
 		LOG.info("loading permissions for user '" + userId + "'");
 		
 	    Permissions permissions = new Permissions();
+	    Set<String> permissionNames = new HashSet<>();
 	    
 	    // TODO check if this is necessary
 	    permissions.add(new RemoteServiceAccessPermission("*.shared.*", "*"));
@@ -60,7 +64,12 @@ public class AccessControlService extends AbstractAccessControlService<String> {
 	    BEANS.get(IUserService.class)
 	    .getPermissions(userId)
 	    .stream()
-	    .forEach(permission -> permissions.add(permission));
+	    .forEach(permission -> {
+	    	permissions.add(permission);
+	    	permissionNames.add(permission.toString());
+	    	});
+	    
+		LOG.info("permissions list: [" + StringUtility.join(",", permissionNames) + "]");
 
 		return permissions;
 	}

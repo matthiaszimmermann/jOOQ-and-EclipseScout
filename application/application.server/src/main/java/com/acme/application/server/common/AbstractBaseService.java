@@ -78,21 +78,6 @@ public abstract class AbstractBaseService<TABLE extends Table<RECORD>, RECORD ex
 			getLogger().error("Failed to execute store(). id: {}, record: {}. exception: ", id, record, e);
 		}
 	}
-//
-//	/**
-//	 * Returns a Jooq DSL context.
-//	 */
-//	protected DSLContext getContext(Connection connection) {
-//		configuration.set(connection);
-//		return DSL.using(configuration);
-//	}
-//
-//	/**
-//	 * Returns a JDBC connection.
-//	 */
-//	protected Connection getConnection() throws SQLException {
-//		return DriverManager.getConnection(jdbcMappingName, username, password);
-//	}
 
 	/**
 	 * Returns true iff a record with the provided id exists using the specified context

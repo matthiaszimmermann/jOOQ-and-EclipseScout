@@ -112,12 +112,6 @@ public class GeneratorApplication {
 			IDatabaseObject object) throws SQLException 
 	{
 		String name = object.getName();
-		
-		if(IGenerateTable.class.isInstance(object)) {
-			// TODO setup proper schema
-			// IGenerateTable table = (IGenerateTable) object;			
-			// config.withSchema(table.getSchemaName());
-		}
 
 		if(!objects.contains(name)) {
 			object.setContext(context);
@@ -127,7 +121,7 @@ public class GeneratorApplication {
 			object.getLogger().info("Database object {} successfully created", name);
 		}
 		else {
-			object.getLogger().warn("Database object {} already exists, nothing created", name);					
+			object.getLogger().warn("Database object {} already exists, nothing created", name);
 		}
 	}
 

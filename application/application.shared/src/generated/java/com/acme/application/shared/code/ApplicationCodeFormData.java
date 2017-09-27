@@ -1,5 +1,7 @@
 package com.acme.application.shared.code;
 
+import java.math.BigDecimal;
+
 import javax.annotation.Generated;
 
 import org.eclipse.scout.rt.shared.data.form.AbstractFormData;
@@ -46,6 +48,10 @@ public class ApplicationCodeFormData extends AbstractFormData {
 		return getPropertyByClass(CodeTypeIdProperty.class);
 	}
 
+	public Order getOrder() {
+		return getFieldByClass(Order.class);
+	}
+
 	public static class Active extends AbstractValueFieldData<Boolean> {
 
 		private static final long serialVersionUID = 1L;
@@ -62,6 +68,11 @@ public class ApplicationCodeFormData extends AbstractFormData {
 	}
 
 	public static class CodeTypeIdProperty extends AbstractPropertyData<String> {
+
+		private static final long serialVersionUID = 1L;
+	}
+
+	public static class Order extends AbstractValueFieldData<BigDecimal> {
 
 		private static final long serialVersionUID = 1L;
 	}

@@ -24,7 +24,7 @@ public class DatabaseSetupService {
 
 	@PostConstruct
 	public void autoCreateDatabase() {
-
+		
 		if (CONFIG.getPropertyValue(ServerProperties.DatabaseAutoCreateProperty.class)) {
 			try {
 				RunContext context = BEANS.get(SuperUserRunContextProducer.class).produce();

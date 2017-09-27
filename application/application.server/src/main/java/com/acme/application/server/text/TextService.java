@@ -48,25 +48,30 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 
 	@Override
 	public boolean exists(String id) {
-		String key = toKey(id);
-		String locale = toLocale(id);
-
 		try(Connection connection = getConnection()) {
 			DSLContext context = getContext(connection); 
-			return context
-					.fetchExists(
-							context
-							.select()
-							.from(getTable())
-							.where(getTable().KEY.eq(key)
-									.and(getTable().LOCALE.eq(locale))));
+			return exists(context, id);
 		}
 		catch (SQLException e) {
-			getLogger().error("Failed to execute exists(). key: {}, locale: {}, exception: ", key, locale, e);
+			getLogger().error("Failed to execute exists(). id: {}, exception: ", id, e);
 		}
 
 		return false;
 	}
+	
+	private boolean exists(DSLContext context, String id) {
+		String key = toKey(id);
+		String locale = toLocale(id);
+		
+		return context
+				.fetchExists(
+						context
+						.select()
+						.from(getTable())
+						.where(getTable().KEY.eq(key)
+								.and(getTable().LOCALE.eq(locale))));
+	}
+	
 
 	@Override
 	public TextRecord get(String id) {
@@ -104,7 +109,29 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 	public void store(TextRecord record) {
 		String id = TextService.toId(record.getLocale(), record.getKey());
 		store(id, record);
-
+	}
+	
+	@Override
+	public void store(String id, TextRecord record) {
+		try(Connection connection = getConnection()) {
+			DSLContext context = getContext(connection);
+			if (exists(context, id)) {
+				context
+				.update(getTable())
+				.set(record)
+				.where(getIdColumn().eq(id))
+				.execute();
+			} 
+			else {
+				context
+				.insertInto(getTable())
+				.set(record)
+				.execute();
+			}
+		}
+		catch (SQLException e) {
+			getLogger().error("Failed to execute store(). id: {}, record: {}. exception: ", id, record, e);
+		}
 	}
 
 	private TextRecord get(String locale, String key) {

@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RolePermission extends TableImpl<RolePermissionRecord> {
 
-    private static final long serialVersionUID = -1864476640;
+    private static final long serialVersionUID = -1199840067;
 
     /**
      * The reference instance of <code>core.ROLE_PERMISSION</code>
@@ -57,7 +57,7 @@ public class RolePermission extends TableImpl<RolePermissionRecord> {
     /**
      * The column <code>core.ROLE_PERMISSION.PERMISSION</code>.
      */
-    public final TableField<RolePermissionRecord, String> PERMISSION = createField("PERMISSION", org.jooq.impl.SQLDataType.VARCHAR.length(64).nullable(false), this, "");
+    public final TableField<RolePermissionRecord, String> PERMISSION = createField("PERMISSION", org.jooq.impl.SQLDataType.VARCHAR.length(128).nullable(false), this, "");
 
     /**
      * Create a <code>core.ROLE_PERMISSION</code> table reference

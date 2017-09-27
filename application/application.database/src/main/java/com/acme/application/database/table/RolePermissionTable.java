@@ -20,7 +20,7 @@ public class RolePermissionTable extends AbstractCoreTable {
 		return getContext()
 				.createTable(getName())
 				.column(ROLE_NAME, TYPE_ID)
-				.column(PERMISSION, TYPE_STRING_S.nullable(false))
+				.column(PERMISSION, TYPE_STRING_M.nullable(false))
 				.constraints(
 						DSL.constraint(getPKName()).primaryKey(
 								ROLE_NAME,

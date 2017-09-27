@@ -23,38 +23,41 @@ public class DataStoreService extends JooqService implements IDataStoreService {
 		populateDatabase();
 	}
 
-	@Override
-	public void drop() {
-		LOG.error("Add implementation");
-	}
-
 	private void createDatabaseScheme() {
-		LOG.info("Create database schema");
+		if(CONFIG.getPropertyValue(ServerProperties.DatabaseAutoCreateProperty.class)) {
+			LOG.info("Create database schema");
 
-		try(Connection connection = getConnection()) {
-			GeneratorApplication.setupDatabase(getContext(connection));
+			try(Connection connection = getConnection()) {
+				GeneratorApplication.setupDatabase(getContext(connection));
+			}
+			catch (SQLException e) {
+				LOG.error("Failed to execute createDatabaseScheme(). exception: ", e);
+			}
 		}
-		catch (SQLException e) {
-			LOG.error("Failed to execute createDatabaseScheme(). exception: ", e);
-		}
-
 	}
 
 	private void populateDatabase() {
-		LOG.info("Populate database");
+		if(CONFIG.getPropertyValue(ServerProperties.DatabaseAutoPopulateProperty.class)) {
+			LOG.info("Populate database");
 
-		try(Connection connection = getConnection()) {
-			TableDataInitializer data = BEANS.get(TableDataInitializer.class);
-			DSLContext context = getContext(connection);
-			data.initialize(context);
+			try(Connection connection = getConnection()) {
+				TableDataInitializer data = BEANS.get(TableDataInitializer.class);
+				DSLContext context = getContext(connection);
+				data.initialize(context);
 
-			if(CONFIG.getPropertyValue(ServerProperties.DatabaseAutoPopulateProperty.class)) {
-				LOG.info("Add additional sample data");
-				data.addSamples(context);
+				if(CONFIG.getPropertyValue(ServerProperties.DatabaseAutoPopulateProperty.class)) {
+					LOG.info("Add additional sample data");
+					data.addSamples(context);
+				}
+			}
+			catch (SQLException e) {
+				LOG.error("Failed to execute populateDatabase(). exception: ", e);
 			}
 		}
-		catch (SQLException e) {
-			LOG.error("Failed to execute populateDatabase(). exception: ", e);
-		}
+	}
+
+	@Override
+	public void drop() {
+		LOG.error("Add implementation");
 	}
 }
