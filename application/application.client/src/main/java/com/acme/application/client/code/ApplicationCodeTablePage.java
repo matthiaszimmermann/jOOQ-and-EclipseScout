@@ -16,6 +16,7 @@ import org.eclipse.scout.rt.client.ui.desktop.outline.IOutline;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.AbstractPageWithTable;
 import org.eclipse.scout.rt.client.ui.form.FormEvent;
 import org.eclipse.scout.rt.client.ui.form.FormListener;
+import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
@@ -35,6 +36,7 @@ import com.acme.application.shared.code.ApplicationCodeUtility;
 import com.acme.application.shared.code.CreateApplicationCodePermission;
 import com.acme.application.shared.code.IApplicationCodeType;
 import com.acme.application.shared.code.UpdateApplicationCodePermission;
+import com.acme.application.shared.text.ITextService;
 
 @Data(ApplicationCodePageData.class)
 public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
@@ -50,7 +52,9 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 
 	@Override
 	protected String getConfiguredTitle() {
-		return TEXTS.get(ClientSession.get().getLocale(), codeType.getId());
+		String key = codeType.getId();
+		String locale = ClientSession.get().getLocale().toLanguageTag();
+		return BEANS.get(ITextService.class).getText(key, locale);
 	}
 	
 	@Override
@@ -61,8 +65,9 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 	@Override
 	protected void execLoadData(SearchFilter filter) {
 		ApplicationCodePageData pageData = new ApplicationCodePageData();
+		String key = codeType.getId();
 		Locale locale = ClientSession.get().getLocale();
-		String typeText = TEXTS.get(locale, codeType.getId(), codeType.getId());
+		String typeText =  BEANS.get(ITextService.class).getText(key, locale.toLanguageTag());
 		
 		codeType
 		.getCodes(false)

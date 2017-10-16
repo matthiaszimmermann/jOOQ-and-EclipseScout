@@ -55,7 +55,7 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	public static final UserRecord USER_ROOT = new UserRecord(
 			UserTable.ROOT, 
 			PERSON_ROOT.getId(), 
-			TextTable.LOCALE_DEFAULT,
+			TextTable.LOCALE_GERMAN,
 			PasswordUtility.calculateEncodedPassword("eclipse"), 
 			true);
 
@@ -66,9 +66,9 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 			PasswordUtility.calculateEncodedPassword("test"), 
 			true);
 
-	public static final RoleRecord ROLE_ROOT = new RoleRecord(RoleTable.ROOT, true);
-	public static final RoleRecord ROLE_USER = new RoleRecord(RoleTable.USER, true);
-	public static final RoleRecord ROLE_GUEST = new RoleRecord(RoleTable.GUEST, false);
+	public static final RoleRecord ROLE_ROOT = new RoleRecord(RoleTable.ROOT, RoleTable.ROOT, true);
+	public static final RoleRecord ROLE_USER = new RoleRecord(RoleTable.USER, RoleTable.USER, true);
+	public static final RoleRecord ROLE_GUEST = new RoleRecord(RoleTable.GUEST, RoleTable.GUEST, false);
 
 	public static final UserRoleRecord USER_ROLE_ROOT = new UserRoleRecord(UserTable.ROOT, RoleTable.ROOT);
 	public static final UserRoleRecord USER_ROLE_ALICE = new UserRoleRecord(USER_ALICE.getUsername(), RoleTable.USER);
@@ -85,12 +85,12 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 
 	public static final TextRecord TEXT_UNDEFINED = new TextRecord(CODE_UNDEFINED.getId(), TextTable.LOCALE_DEFAULT, "Undefined");
 
-	public static final TextRecord TEXT_ROOT = new TextRecord(RoleTable.ROOT, TextTable.LOCALE_DEFAULT, "Root");
-	public static final TextRecord TEXT_USER = new TextRecord(RoleTable.USER, TextTable.LOCALE_DEFAULT, "User");
-	public static final TextRecord TEXT_GUEST = new TextRecord(RoleTable.GUEST, TextTable.LOCALE_DEFAULT, "Guest");
+	public static final TextRecord TEXT_ROOT = new TextRecord(RoleTable.toTextKey(RoleTable.ROOT), TextTable.LOCALE_DEFAULT, "Root");
+	public static final TextRecord TEXT_USER = new TextRecord(RoleTable.toTextKey(RoleTable.USER), TextTable.LOCALE_DEFAULT, "User");
+	public static final TextRecord TEXT_GUEST = new TextRecord(RoleTable.toTextKey(RoleTable.GUEST), TextTable.LOCALE_DEFAULT, "Guest");
 
-	public static final TextRecord TEXT_USER_DE = new TextRecord(RoleTable.USER, Locale.GERMAN.toLanguageTag(), "Benutzer");
-	public static final TextRecord TEXT_GUEST_DE = new TextRecord(RoleTable.GUEST, Locale.GERMAN.toLanguageTag(), "Gast");	
+	public static final TextRecord TEXT_USER_DE = new TextRecord(RoleTable.toTextKey(RoleTable.USER), Locale.GERMAN.toLanguageTag(), "Benutzer");
+	public static final TextRecord TEXT_GUEST_DE = new TextRecord(RoleTable.toTextKey(RoleTable.GUEST), Locale.GERMAN.toLanguageTag(), "Gast");	
 
 	//--- Sv Schema Items --------------------------------------------------------------//
 

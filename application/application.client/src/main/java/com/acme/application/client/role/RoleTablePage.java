@@ -56,6 +56,10 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 			getMenuByClass(EditMenu.class).execAction();
 		}
 
+		public TextIdColumn getTextIdColumn() {
+			return getColumnSet().getColumnByClass(TextIdColumn.class);
+		}
+
 		public NameColumn getNameColumn() {
 			return getColumnSet().getColumnByClass(NameColumn.class);
 		}
@@ -82,7 +86,7 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 			protected void execAction() {
 				RoleForm form = new RoleForm();
 				form.addFormListener(new RoleFormListener());
-				form.setRoleId(getSelectedId());
+				form.setRoleId(getName());
 				form.setRoleIdEnabled(false);
 				form.startModify();
 			}
@@ -93,7 +97,7 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 
 			@Override
 			protected String getObjectId() {
-				return getSelectedId();
+				return getTextId();
 			}
 
 			@Override
@@ -102,8 +106,12 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 			}
 		}
 		
-		private String getSelectedId() {
-			return getIdColumn().getSelectedValue();
+		private String getTextId() {
+			return getTextIdColumn().getSelectedValue();
+		}
+		
+		private String getName() {
+			return getNameColumn().getSelectedValue();
 		}
 
 		private class RoleFormListener implements FormListener {
@@ -134,6 +142,17 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 				return 150;
 			}
 		}
+
+		@Order(15)
+		public class TextIdColumn extends AbstractStringColumn {
+			
+			@Override
+			protected boolean getConfiguredDisplayable() {
+				return false;
+			}
+		}
+		
+		
 
 		@Order(20)
 		public class NameColumn extends AbstractStringColumn {

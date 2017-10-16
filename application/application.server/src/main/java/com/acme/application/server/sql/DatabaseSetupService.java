@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.acme.application.server.ServerProperties;
 import com.acme.application.server.security.PermissionService;
+import com.acme.application.server.text.TextService;
 import com.acme.application.shared.code.ApplicationCodeUtility;
 
 @ApplicationScoped
@@ -56,5 +57,6 @@ public class DatabaseSetupService {
 	private void initializeTexts() {
 		LOG.info("Initialize texts");
 		BEANS.get(PermissionService.class).checkTranslations();
+		BEANS.get(TextService.class).invalidateCache();
 	}
 }

@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Role extends TableImpl<RoleRecord> {
 
-    private static final long serialVersionUID = 1666998738;
+    private static final long serialVersionUID = -668096925;
 
     /**
      * The reference instance of <code>core.ROLE</code>
@@ -53,6 +53,11 @@ public class Role extends TableImpl<RoleRecord> {
      * The column <code>core.ROLE.NAME</code>.
      */
     public final TableField<RoleRecord, String> NAME = createField("NAME", org.jooq.impl.SQLDataType.VARCHAR.length(36).nullable(false), this, "");
+
+    /**
+     * The column <code>core.ROLE.TEXT</code>.
+     */
+    public final TableField<RoleRecord, String> TEXT = createField("TEXT", org.jooq.impl.SQLDataType.VARCHAR.length(36).nullable(false), this, "");
 
     /**
      * The column <code>core.ROLE.ACTIVE</code>.

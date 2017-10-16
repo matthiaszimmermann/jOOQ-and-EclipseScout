@@ -14,7 +14,6 @@ import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 
 import com.acme.application.client.admin.AdminOutline;
-import com.acme.application.client.search.SearchOutline;
 import com.acme.application.client.user.ProfileForm;
 import com.acme.application.client.work.WorkOutline;
 import com.acme.application.shared.FontAwesomeIcons;
@@ -39,7 +38,10 @@ public class Desktop extends AbstractDesktop {
 
 	@Override
 	protected List<Class<? extends IOutline>> getConfiguredOutlines() {
-		return CollectionUtility.<Class<? extends IOutline>>arrayList(WorkOutline.class, SearchOutline.class,
+		return CollectionUtility.<Class<? extends IOutline>>arrayList(
+				WorkOutline.class, 
+				// TODO reenable search outline once it is needed
+				// SearchOutline.class,
 				AdminOutline.class);
 	}
 
@@ -85,6 +87,11 @@ public class Desktop extends AbstractDesktop {
 	@Order(2000)
 	public class UserMenu extends AbstractMenu {
 
+		@Override
+		protected String getConfiguredText() {
+			return ClientSession.get().getUserId();
+		}
+		
 		@Override
 		protected String getConfiguredIconId() {
 			return FontAwesomeIcons.fa_user;
@@ -157,6 +164,8 @@ public class Desktop extends AbstractDesktop {
 		}
 	}
 
+	// TODO reenable once search outline is needed
+	/*
 	@Order(2000)
 	public class SearchOutlineViewButton extends AbstractOutlineViewButton {
 
@@ -178,6 +187,7 @@ public class Desktop extends AbstractDesktop {
 			return IKeyStroke.F3;
 		}
 	}
+	*/
 
 	@Order(3000)
 	public class AdminOutlineViewButton extends AbstractOutlineViewButton {

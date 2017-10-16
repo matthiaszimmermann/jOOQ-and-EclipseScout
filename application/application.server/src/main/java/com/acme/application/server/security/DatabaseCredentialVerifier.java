@@ -27,15 +27,21 @@ public class DatabaseCredentialVerifier implements ICredentialVerifier {
 			@Override
 			public Integer call() throws Exception {
 				if (StringUtility.isNullOrEmpty(username)) {
-					LOG.warn("Provided username is null or empty");
+					LOG.warn("Provided username is null or empty, no login possible");
 					return AUTH_CREDENTIALS_REQUIRED;
 				}
 
 				String user = username.toLowerCase(NlsLocale.get());
+
+				if (!BEANS.get(UserService.class).userIsActive(user)) {
+					LOG.warn("Provided user is deactivated, no login possible");
+					return AUTH_FORBIDDEN;
+				}
+				
 				String passwordPlain = new String(passwordPlainText);
 
 				if (!BEANS.get(UserService.class).verifyPassword(user, passwordPlain)) {
-					LOG.warn("Provided user does not exist or password does not match");
+					LOG.warn("Provided user does not exist or password does not match, no login possible");
 					return AUTH_FORBIDDEN;
 				}
 

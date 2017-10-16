@@ -14,6 +14,7 @@ public class TextTable extends AbstractCoreTable {
 	public static final String TEXT = "TEXT";
 
 	public static final String LOCALE_DEFAULT = Locale.ROOT.toLanguageTag();
+	public static final String LOCALE_GERMAN = Locale.GERMAN.toLanguageTag();
 
 
 	@Override

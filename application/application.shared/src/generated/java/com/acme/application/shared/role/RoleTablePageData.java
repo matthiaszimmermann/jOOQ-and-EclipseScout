@@ -53,8 +53,10 @@ public class RoleTablePageData extends AbstractTablePageData {
 
 		private static final long serialVersionUID = 1L;
 		public static final String id = "id";
+		public static final String textId = "textId";
 		public static final String name = "name";
 		private String m_id;
+		private String m_textId;
 		private String m_name;
 
 		public String getId() {
@@ -63,6 +65,14 @@ public class RoleTablePageData extends AbstractTablePageData {
 
 		public void setId(String newId) {
 			m_id = newId;
+		}
+
+		public String getTextId() {
+			return m_textId;
+		}
+
+		public void setTextId(String newTextId) {
+			m_textId = newTextId;
 		}
 
 		public String getName() {

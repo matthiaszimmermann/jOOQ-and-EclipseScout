@@ -24,10 +24,13 @@ import com.acme.application.database.or.core.tables.Role;
 import com.acme.application.database.or.core.tables.RolePermission;
 import com.acme.application.database.or.core.tables.records.RolePermissionRecord;
 import com.acme.application.database.or.core.tables.records.RoleRecord;
+import com.acme.application.database.or.core.tables.records.TextRecord;
 import com.acme.application.database.table.RoleTable;
+import com.acme.application.database.table.TextTable;
 import com.acme.application.server.ServerSession;
 import com.acme.application.server.common.AbstractBaseService;
 import com.acme.application.server.security.PermissionService;
+import com.acme.application.server.text.TextService;
 import com.acme.application.shared.role.IRoleService;
 import com.acme.application.shared.role.PermissionTablePageData;
 import com.acme.application.shared.role.RoleFormData;
@@ -144,10 +147,12 @@ public class RoleService extends AbstractBaseService<Role, RoleRecord> implement
 		.stream()
 		.forEach(role -> {
 			String roleName = role.getName();
+			String roleTextId = RoleTable.toTextKey(roleName);
 
 			RoleTableRowData row = pageData.addRow();
 			row.setId(roleName);
-			row.setName(TEXTS.getWithFallback(locale, roleName, roleName));
+			row.setTextId(roleTextId);
+			row.setName(TEXTS.getWithFallback(locale, roleTextId, roleName));
 		});
 
 		return pageData;
@@ -222,7 +227,10 @@ public class RoleService extends AbstractBaseService<Role, RoleRecord> implement
 	public RoleFormData store(RoleFormData formData) {
 		String role = formData.getRoleId().getValue();
 		PermissionTable table = formData.getPermissionTable();
-		RoleRecord record = new RoleRecord(role, true);
+		
+		// store role record
+		String roleTextId = RoleTable.toTextKey(role);
+		RoleRecord record = new RoleRecord(role, roleTextId, true);
 		List<String> permissions = Arrays.asList(table.getRows())
 				.stream()
 				.filter(row -> row.getAssigned())
@@ -233,6 +241,10 @@ public class RoleService extends AbstractBaseService<Role, RoleRecord> implement
 
 		store(record, permissions);
 
+		// store role default text translation
+		TextRecord roleText = new TextRecord(roleTextId, TextTable.LOCALE_DEFAULT, role);
+		BEANS.get(TextService.class).store(roleText);
+		
 		return formData;
 	}
 }

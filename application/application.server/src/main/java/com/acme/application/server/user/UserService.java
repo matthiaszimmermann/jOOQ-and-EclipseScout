@@ -29,8 +29,10 @@ import com.acme.application.database.or.core.tables.records.PersonRecord;
 import com.acme.application.database.or.core.tables.records.UserRecord;
 import com.acme.application.database.or.core.tables.records.UserRoleRecord;
 import com.acme.application.database.table.RoleTable;
+import com.acme.application.server.ServerSession;
 import com.acme.application.server.common.AbstractBaseService;
 import com.acme.application.server.person.PersonService;
+import com.acme.application.server.text.TextService;
 import com.acme.application.shared.security.PasswordUtility;
 import com.acme.application.shared.user.IUserService;
 import com.acme.application.shared.user.ProfileFormData;
@@ -234,9 +236,11 @@ public class UserService extends AbstractBaseService<User, UserRecord> implement
 		.stream()
 		.forEach(record -> {
 			String role = record.getName();
+			String roleTextId = RoleTable.toTextKey(role);
+			Locale locale = ServerSession.get().getLocale();
 			RoleTableRowData row = rt.addRow();
 			row.setId(role);
-			row.setRole(TEXTS.getWithFallback(role, role));
+			row.setRole(TEXTS.getWithFallback(locale, roleTextId, role));
 			row.setAssigned(roles.contains(role));
 		});
 	}
@@ -399,9 +403,24 @@ public class UserService extends AbstractBaseService<User, UserRecord> implement
 	@Override
 	public Locale getLocale(String username) {
 		if(StringUtility.hasText(username)) {
-			return Locale.forLanguageTag(get(username).getLocale());
+			UserRecord user = get(username);
+			
+			if(user != null) {
+				return TextService.convertLocale(user.getLocale());
+			}
 		}
 
 		return Locale.ROOT;
+	}
+
+	public boolean userIsActive(String username) {
+		UserRecord user = get(username);
+
+		if (user == null) {
+			getLogger().warn("Provided user is is null");
+			return false;
+		}
+		
+		return user.getActive();
 	}
 }

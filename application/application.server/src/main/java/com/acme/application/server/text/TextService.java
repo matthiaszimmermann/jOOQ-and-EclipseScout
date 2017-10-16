@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.scout.rt.platform.BEANS;
+import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.jooq.DSLContext;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.acme.application.database.or.core.tables.Text;
 import com.acme.application.database.or.core.tables.records.TextRecord;
 import com.acme.application.database.table.TextTable;
-import com.acme.application.server.ServerSession;
 import com.acme.application.server.common.AbstractBaseService;
 import com.acme.application.shared.text.ITextService;
 import com.acme.application.shared.text.TextTablePageData;
@@ -28,6 +28,7 @@ import com.acme.application.shared.text.TextTablePageData.TextTableRowData;
 
 public class TextService extends AbstractBaseService<Text, TextRecord> implements ITextService {
 
+	public static final String TEXT_LOCALE_UNDEFINED = "[Undefined]";
 	public static final String LOCALE_DEFAULT = TextTable.LOCALE_DEFAULT;
 	private static final String ID_SEPARATOR = ":";
 
@@ -39,6 +40,10 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 	@Override
 	public Field<String> getIdColumn() {
 		return Text.TEXT.KEY;
+	}
+
+	protected Field<String> getLocaleColumn() {
+		return Text.TEXT.LOCALE;
 	}
 
 	@Override
@@ -58,11 +63,11 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 
 		return false;
 	}
-	
+
 	private boolean exists(DSLContext context, String id) {
 		String key = toKey(id);
 		String locale = toLocale(id);
-		
+
 		return context
 				.fetchExists(
 						context
@@ -71,21 +76,21 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 						.where(getTable().KEY.eq(key)
 								.and(getTable().LOCALE.eq(locale))));
 	}
-	
+
 
 	@Override
 	public TextRecord get(String id) {
 		String key = toKey(id);
 		String locale = toLocale(id);
-		TextRecord record = get(locale, key);
 
-		// TODO add tests to check if this is already covered by the TextDbProviderService -> then, cleanup
-		// refine fall-back mechanism: language-country -> language -> undefined
-		if (record == null) {
-			record = get(LOCALE_DEFAULT, key);
+		try(Connection connection = getConnection()) {
+			return get(key, locale, null);
 		}
-
-		return record;
+		catch (SQLException e) {
+			getLogger().error("Failed to execute getAll(). key: {}, exception: ", key, e);
+		}
+		
+		return null;
 	}
 
 	public List<TextRecord> getAll(String key) {
@@ -110,7 +115,7 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 		String id = TextService.toId(record.getLocale(), record.getKey());
 		store(id, record);
 	}
-	
+
 	@Override
 	public void store(String id, TextRecord record) {
 		try(Connection connection = getConnection()) {
@@ -119,7 +124,7 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 				context
 				.update(getTable())
 				.set(record)
-				.where(getIdColumn().eq(id))
+				.where(getIdColumn().eq(toKey(id))).and(getLocaleColumn().eq(toLocale(id)))
 				.execute();
 			} 
 			else {
@@ -134,19 +139,42 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 		}
 	}
 
-	private TextRecord get(String locale, String key) {
+	public String getText(String key, String locale) {
 		try(Connection connection = getConnection()) {
-			return getContext(connection)
-					.selectFrom(getTable())
-					.where(getTable().KEY.eq(key)
-							.and(getTable().LOCALE.eq(locale)))
-					.fetchOne();
+			String text = getText(key, locale, connection);
+
+			if(text != null) {
+				return text;
+			}
+			// fall back with default locale
+			else if(!LOCALE_DEFAULT.equals(locale)) {
+				return getText(key, LOCALE_DEFAULT, connection); 
+			}
 		}
 		catch (SQLException e) {
 			getLogger().error("Failed to execute get(). locale: {}, key: {}, exception: ", locale, key, e);
 		}
 
 		return null;
+	}
+
+	private String getText(String key, String locale, Connection connection) {
+		TextRecord text = get(key, locale, connection);
+
+		if(text != null && StringUtility.hasText(text.getText())) {
+			return text.getText();
+		}
+
+		return null;
+	}
+
+	private TextRecord get(String key, String locale, Connection connection) {
+		TextRecord text = getContext(connection)
+				.selectFrom(getTable())
+				.where(getTable().KEY.eq(key)
+						.and(getTable().LOCALE.eq(locale)))
+				.fetchOne();
+		return text;
 	}
 
 	public static String toId(String locale, String key) {
@@ -260,19 +288,17 @@ public class TextService extends AbstractBaseService<Text, TextRecord> implement
 	@Override
 	public TextTablePageData getTextTableData(SearchFilter filter) {
 		TextTablePageData pageData = new TextTablePageData();
-		Locale locale = ServerSession.get().getLocale();
 
 		getAll()
 		.stream()
 		.forEach(text -> {
 			String key = text.getKey();
 			String localeId = text.getLocale();
-			String textId = text.getText();
 
 			TextTableRowData row = pageData.addRow();
 			row.setKey(key);
-			row.setLocale(TEXTS.getWithFallback(locale, localeId, localeId));
-			row.setText(TEXTS.getWithFallback(locale, textId, textId));
+			row.setLocale(localeId);
+			row.setText(TEXTS.getWithFallback(TextService.convertLocale(localeId), key, ""));
 		});
 
 		return pageData;

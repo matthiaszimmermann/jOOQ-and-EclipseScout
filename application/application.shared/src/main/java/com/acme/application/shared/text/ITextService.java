@@ -22,6 +22,11 @@ public interface ITextService extends IService {
 	void addText(String key, String locale, String text);
 
 	/**
+	 * Returns the specified translated text.
+	 */
+	String getText(String key, String locale);
+
+	/**
 	 * Removes the translation for the provided key and locale from the persisted store.
 	 */
 	void deleteText(String key, String locale);

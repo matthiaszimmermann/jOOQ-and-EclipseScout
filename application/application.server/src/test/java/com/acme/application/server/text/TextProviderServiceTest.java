@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.acme.application.database.or.core.tables.records.TextRecord;
 import com.acme.application.database.table.RoleTable;
 import com.acme.application.database.table.TableDataInitializer;
 import com.acme.application.database.table.TableUtility;
@@ -33,8 +34,8 @@ public class TextProviderServiceTest {
 	}
 	
 	@Test
-	public void testExistingDBText() {
-		String key = RoleTable.USER;
+	public void testExistingDBTextRole() {
+		String key = RoleTable.toTextKey(RoleTable.USER);
 		String expectedText = TableDataInitializer.TEXT_USER.getText();
 		String text = TEXTS.get(key);
 		
@@ -47,6 +48,25 @@ public class TextProviderServiceTest {
 		
 		Assert.assertNotNull("german text for key 'user' not found", text);
 		Assert.assertEquals("unexpected german text for key 'user'", expectedTextGerman, textGerman);
+	}
+	
+	
+	@Test
+	public void testExistingDBTextCodes() {
+		TextRecord fileCodeText = TableDataInitializer.TEXT_TYPE_FILE;
+		String key = fileCodeText.getKey();
+		Locale locale = TextService.convertLocale(fileCodeText.getLocale());
+		String expectedText = fileCodeText.getText();
+		String text = TEXTS.get(locale, key);
+		
+		Assert.assertNotNull("text not found", text);
+		Assert.assertEquals("unexpected text found", expectedText, text);
+		
+		Locale localeGerman = Locale.GERMAN;
+		String textGerman = TEXTS.get(localeGerman, key);
+		
+		Assert.assertNotNull("german text not found", text);
+		Assert.assertEquals("unexpected german text found", expectedText, textGerman);
 	}
 	
 	@Test
