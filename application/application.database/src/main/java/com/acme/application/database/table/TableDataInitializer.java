@@ -80,8 +80,8 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	public static final DocumentRecord DOCUMENT_ALICE_2 = new DocumentRecord("39060692-ad7f-4804-83fc-d16b1407379e", DOCUMENT_LOGO_NAME, "png", getSize(null), null, USER_ALICE.getUsername(), TIMESTAMP, true);
 
 	public static final TextRecord TEXT_TYPE_LOCALE = new TextRecord(TYPE_ID_LOCALE, TextTable.LOCALE_DEFAULT, "Locale");
-	public static final TextRecord TEXT_TYPE_SEX = new TextRecord(TYPE_ID_SEX, TextTable.LOCALE_DEFAULT, "Sex");
 	public static final TextRecord TEXT_TYPE_FILE = new TextRecord(TYPE_ID_FILE, TextTable.LOCALE_DEFAULT, "File Type");
+	public static final TextRecord TEXT_TYPE_SEX = new TextRecord(TYPE_ID_SEX, TextTable.LOCALE_DEFAULT, "Sex");
 
 	public static final TextRecord TEXT_UNDEFINED = new TextRecord(CODE_UNDEFINED.getId(), TextTable.LOCALE_DEFAULT, "Undefined");
 
@@ -89,6 +89,8 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	public static final TextRecord TEXT_USER = new TextRecord(RoleTable.toTextKey(RoleTable.USER), TextTable.LOCALE_DEFAULT, "User");
 	public static final TextRecord TEXT_GUEST = new TextRecord(RoleTable.toTextKey(RoleTable.GUEST), TextTable.LOCALE_DEFAULT, "Guest");
 
+	public static final TextRecord TEXT_TYPE_FILE_DE = new TextRecord(TYPE_ID_FILE, TextTable.LOCALE_GERMAN, "Dateityp");
+	public static final TextRecord TEXT_TYPE_SEX_DE = new TextRecord(TYPE_ID_SEX, TextTable.LOCALE_GERMAN, "Geschlecht");
 	public static final TextRecord TEXT_USER_DE = new TextRecord(RoleTable.toTextKey(RoleTable.USER), Locale.GERMAN.toLanguageTag(), "Benutzer");
 	public static final TextRecord TEXT_GUEST_DE = new TextRecord(RoleTable.toTextKey(RoleTable.GUEST), Locale.GERMAN.toLanguageTag(), "Gast");	
 
@@ -108,6 +110,8 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	public static final TextRecord TEXT_CODE_OG_1 = new TextRecord(CODE_OG_1.getId(), TextTable.LOCALE_DEFAULT, "1.OG");
 	public static final TextRecord TEXT_CODE_OG_2 = new TextRecord(CODE_OG_2.getId(), TextTable.LOCALE_DEFAULT, "2.OG");
 
+	public static final TextRecord TEXT_TYPE_ETAGE_DE = new TextRecord(TYPE_ID_ETAGE, TextTable.LOCALE_GERMAN, "Etage");
+	
 	public static final FiRecord FI_700_1 = new FiRecord()
 			.with(Fi.FI.ID, "cf3b8996-4e6b-4016-97cf-29d803d14aa6")
 			.with(Fi.FI.GEB_NR, "700")
@@ -159,6 +163,8 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 		insert(ctx, CODE_OG_2);
 
 		insert(ctx, TEXT_TYPE_ETAGE);
+		insert(ctx, TEXT_TYPE_ETAGE_DE);
+		
 		insert(ctx, TEXT_CODE_UG);
 		insert(ctx, TEXT_CODE_EG);
 		insert(ctx, TEXT_CODE_OG_1);
@@ -226,8 +232,10 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	private void insertTexts(DSLContext ctx) {
 		insert(ctx, TEXT_TYPE_LOCALE);
 		insert(ctx, TEXT_TYPE_FILE);
+		insert(ctx, TEXT_TYPE_FILE_DE);
 		insert(ctx, TEXT_TYPE_SEX);
-
+		insert(ctx, TEXT_TYPE_SEX_DE);
+		
 		insert(ctx, TEXT_UNDEFINED);
 
 		insert(ctx, TEXT_ROOT);

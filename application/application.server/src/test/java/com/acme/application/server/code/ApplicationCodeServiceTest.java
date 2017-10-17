@@ -85,7 +85,7 @@ public class ApplicationCodeServiceTest {
 	public void testAddDynamicSexCode() {
 		int codes = service.getCodeRecords(SexCodeType.ID).size();
 		String codeId = TableUtility.createId();
-		CodeRecord newCode = new CodeRecord(codeId, SexCodeType.ID, null, null, null, true);
+		CodeRecord newCode = new CodeRecord(codeId, SexCodeType.ID, Double.valueOf(0), null, null, true);
 		CodeRecord missingCode = service.getCodeRecord(newCode.getTypeId(), newCode.getId());		
 		assertNull("New code should not be here already", missingCode);
 		

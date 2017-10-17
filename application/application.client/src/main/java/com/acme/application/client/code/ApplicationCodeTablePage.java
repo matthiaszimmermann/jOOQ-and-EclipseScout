@@ -1,7 +1,5 @@
 package com.acme.application.client.code;
 
-import java.math.BigDecimal;
-import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.scout.rt.client.dto.Data;
@@ -31,9 +29,9 @@ import com.acme.application.client.common.AbstractExportableTable;
 import com.acme.application.client.text.TextForm;
 import com.acme.application.shared.FontAwesomeIcons;
 import com.acme.application.shared.code.ApplicationCodePageData;
-import com.acme.application.shared.code.ApplicationCodePageData.ApplicationCodeRowData;
 import com.acme.application.shared.code.ApplicationCodeUtility;
 import com.acme.application.shared.code.CreateApplicationCodePermission;
+import com.acme.application.shared.code.IApplicationCodeService;
 import com.acme.application.shared.code.IApplicationCodeType;
 import com.acme.application.shared.code.UpdateApplicationCodePermission;
 import com.acme.application.shared.text.ITextService;
@@ -56,33 +54,17 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 		String locale = ClientSession.get().getLocale().toLanguageTag();
 		return BEANS.get(ITextService.class).getText(key, locale);
 	}
-	
+
 	@Override
 	protected boolean getConfiguredLeaf() {
 		return true;
 	}
-	
+
 	@Override
 	protected void execLoadData(SearchFilter filter) {
-		ApplicationCodePageData pageData = new ApplicationCodePageData();
-		String key = codeType.getId();
-		Locale locale = ClientSession.get().getLocale();
-		String typeText =  BEANS.get(ITextService.class).getText(key, locale.toLanguageTag());
+		ApplicationCodePageData pageData = BEANS.get(IApplicationCodeService.class)
+				.getApplicationCodeTableData(codeType.getCodeTypeClass());
 		
-		codeType
-		.getCodes(false)
-		.stream()
-		.forEach(code -> {
-			String id = code.getId();
-
-			ApplicationCodeRowData row = pageData.addRow();
-			row.setId(id);
-			row.setType(typeText);
-			row.setText(TEXTS.getWithFallback(locale, id, id));
-			row.setOrder(BigDecimal.valueOf(code.getOrder()));
-			row.setActive(code.isActive());
-		});
-
 		importPageData(pageData);
 	}
 
@@ -135,7 +117,7 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 				form.startNew();
 			}
 		}
-		
+
 		@Order(20)
 		public class EditMenu extends AbstractMenu {
 
@@ -177,7 +159,7 @@ public class ApplicationCodeTablePage extends AbstractPageWithTable<Table> {
 
 		@Order(30)
 		public class TranslateMenu extends AbstractMenu {
-			
+
 			@Override
 			protected String getConfiguredText() {
 				return TEXTS.get("Translate");

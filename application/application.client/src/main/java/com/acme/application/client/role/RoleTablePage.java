@@ -86,7 +86,7 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 			protected void execAction() {
 				RoleForm form = new RoleForm();
 				form.addFormListener(new RoleFormListener());
-				form.setRoleId(getName());
+				form.setRoleId(getRoleId());
 				form.setRoleIdEnabled(false);
 				form.startModify();
 			}
@@ -110,8 +110,8 @@ public class RoleTablePage extends AbstractPageWithTable<Table> {
 			return getTextIdColumn().getSelectedValue();
 		}
 		
-		private String getName() {
-			return getNameColumn().getSelectedValue();
+		private String getRoleId() {
+			return getIdColumn().getSelectedValue();
 		}
 
 		private class RoleFormListener implements FormListener {

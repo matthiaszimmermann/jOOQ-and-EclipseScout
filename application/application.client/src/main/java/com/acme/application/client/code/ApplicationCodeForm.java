@@ -28,7 +28,6 @@ import com.acme.application.shared.code.ApplicationCodeFormData;
 import com.acme.application.shared.code.ApplicationCodeUtility;
 import com.acme.application.shared.code.CreateApplicationCodePermission;
 import com.acme.application.shared.code.IApplicationCodeService;
-import com.acme.application.shared.code.IApplicationCodeType;
 import com.acme.application.shared.code.UpdateApplicationCodePermission;
 
 @FormData(value = ApplicationCodeFormData.class, sdkCommand = FormData.SdkCommand.CREATE)
@@ -205,14 +204,6 @@ public class ApplicationCodeForm extends AbstractForm {
 
 		@Override
 		protected void execLoad() {
-			//			setEnabledPermission(new UpdateApplicationCodePermission());
-			//
-			//			ApplicationCodeFormData formData = new ApplicationCodeFormData();
-			//			exportFormData(formData);
-			//			formData = BEANS.get(IApplicationCodeService.class).load(formData);
-			//			importFormData(formData);
-			//
-			//			getForm().setSubTitle(calculateSubTitle());
 			load(new UpdateApplicationCodePermission());
 		}
 
@@ -272,9 +263,6 @@ public class ApplicationCodeForm extends AbstractForm {
 		ApplicationCodeFormData formData = new ApplicationCodeFormData();
 		exportFormData(formData);
 		formData = BEANS.get(IApplicationCodeService.class).store(formData);
-
-		String typeId = formData.getCodeTypeId();
-		IApplicationCodeType type = ApplicationCodeUtility.getCodeType(typeId);
-		ApplicationCodeUtility.reload(type.getClass());
+		ApplicationCodeUtility.reload(formData.getCodeTypeId());
 	}
 }

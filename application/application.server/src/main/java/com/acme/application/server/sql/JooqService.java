@@ -24,6 +24,7 @@ public class JooqService {
 	Logger LOG = LoggerFactory.getLogger(TableDataInitializer.class);
 
 	private SQLDialect dialect = null;
+	private String jdbcDriver = null;
 	private String jdbcMappingName = null;
 	private String username = null;
 	private String password = null;
@@ -40,9 +41,6 @@ public class JooqService {
 	}
 
 	private void initializeJdbcDriver() {
-		// TODO move the class name to a property
-		String jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-		
 		try {
 			Class.forName(jdbcDriver);
 			LOG.info("JDBC Driver {} successfully loaded", jdbcDriver);
@@ -70,6 +68,7 @@ public class JooqService {
 
 	private void applyConfigProperties() {
 		dialect = CONFIG.getPropertyValue(ServerProperties.DialectProperty.class);
+		jdbcDriver = CONFIG.getPropertyValue(ServerProperties.DriverProperty.class);
 		jdbcMappingName = CONFIG.getPropertyValue(ServerProperties.JdbcMappingNameProperty.class);
 		jdbcMappingName = postProcessMappingName(jdbcMappingName);
 		username = CONFIG.getPropertyValue(ServerProperties.UsernameProperty.class);

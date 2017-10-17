@@ -100,6 +100,17 @@ public class ApplicationCodeUtility {
 			return null;
 		}
 	}
+	
+	/**
+	 * Reloads the code type and triggers a code cash refresh.
+	 */
+	public static void reload(String codeTypeId) {
+		IApplicationCodeType type = getCodeType(codeTypeId);
+		
+		if(type != null) {
+			reload(type.getClass());
+		}
+	}
 
 	/**
 	 * Reloads the code type and triggers a code cash refresh.

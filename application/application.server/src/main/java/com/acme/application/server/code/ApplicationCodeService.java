@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.exception.VetoException;
-import org.eclipse.scout.rt.platform.util.ObjectUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.code.CodeRow;
 import org.eclipse.scout.rt.shared.services.common.code.ICode;
@@ -57,21 +56,29 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 	public ApplicationCodePageData getApplicationCodeTableData(Class<? extends IApplicationCodeType> codeTypeName) {
 		ApplicationCodePageData pageData = new ApplicationCodePageData();
 		IApplicationCodeType codeType = ApplicationCodeUtility.getCodeType(codeTypeName);
-		Locale locale = ServerSession.get().getLocale();
-
-		// enforce reload from database
-		loadCodeRowsFromDatabase(codeType.getId())
+		String locale = ServerSession.get().getLocale().toLanguageTag();
+		String typeText = getText(codeType.getId(), locale);
+		
+		codeType
+		.getCodes(false)
 		.stream()
 		.forEach(code -> {
-			String codeId = code.getKey();
-			ApplicationCodeRowData row = pageData.addRow();	
-			row.setId(codeId);
-			row.setType(TEXTS.get(locale, codeType.getId(), codeType.getId()));
-			row.setText(TEXTS.get(locale, codeId, codeId));
+			String id = code.getId();
+
+			ApplicationCodeRowData row = pageData.addRow();
+			row.setId(id);
+			row.setType(typeText);
+			row.setText(getText(id, locale));
+			row.setOrder(BigDecimal.valueOf(code.getOrder()));
 			row.setActive(code.isActive());
 		});
+		
 
 		return pageData;
+	}
+
+	private String getText(String key, String locale) {
+		return BEANS.get(TextService.class).getText(key, locale);
 	}
 
 	@Override
@@ -81,13 +88,16 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 		}
 
 		String codeId = formData.getCodeId().getValue();
+		String typeId = formData.getCodeTypeId();
 
 		if(codeId != null) {
-			IApplicationCodeType codeType = ApplicationCodeUtility.getCodeType(formData.getCodeTypeId());
-			ICode<String> code = ApplicationCodeUtility.getCode(codeType.getCodeTypeClass(), codeId);		
-			formData.getCodeText().setValue(code.getText());
-			formData.getOrder().setValue(BigDecimal.valueOf(code.getOrder()));
-			formData.getActive().setValue(code.isActive());
+			CodeRecord codeRecord = getCodeRecord(typeId, codeId);
+			IApplicationCodeType codeType = ApplicationCodeUtility.getCodeType(typeId);
+			ICode<String> code = ApplicationCodeUtility.getCode(codeType.getCodeTypeClass(), codeId);
+
+			formData.getCodeText().setValue(getCodeText(codeId, code));
+			formData.getOrder().setValue(getCodeOrder(codeRecord, code));
+			formData.getActive().setValue(getCodeActive(codeRecord, code));
 		}
 		else {
 			formData.getCodeId().setValue(ApplicationCodeUtility.generateCodeId());
@@ -98,7 +108,34 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 		return formData;
 	}
 
+	private String getCodeText(String codeId, ICode<String> code) {
+		String text = BEANS.get(TextService.class).getText(codeId, TextService.LOCALE_DEFAULT);
+		return text != null ? text : code.getText();
+	}
 
+	private BigDecimal getCodeOrder(CodeRecord codeRecord, ICode<String> code) {
+		if(codeRecord != null && codeRecord.getOrder() != null) {
+			return BigDecimal.valueOf(codeRecord.getOrder());
+		}
+		else if(code != null) {
+			return BigDecimal.valueOf(code.getOrder());
+		}
+		else {
+			return BigDecimal.valueOf(0.0);
+		}
+	}
+
+	private Boolean getCodeActive(CodeRecord codeRecord, ICode<String> code) {
+		if(codeRecord != null) {
+			return codeRecord.getActive();
+		}
+		else if(code != null) {
+			return code.isActive();
+		}
+		else {
+			return true;
+		}
+	}
 
 	@Override
 	public ApplicationCodeFormData store(ApplicationCodeFormData formData) {
@@ -108,7 +145,7 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 
 		String codeTypeId = formData.getCodeTypeId();
 		store(codeTypeId, toCodeRow(formData));
-		refresh(codeTypeId);
+		ApplicationCodeUtility.reload(codeTypeId);
 
 		return formData;
 	}
@@ -116,7 +153,7 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 	private ICodeRow<String> toCodeRow(ApplicationCodeFormData formData) {
 		String id = formData.getCodeId().getValue();
 		String text = formData.getCodeText().getValue();
-		double order = (double) ObjectUtility.nvl(formData.getOrder().getValue().doubleValue(), 0.0);
+		double order = getOrder(formData);
 		String icon = null;
 		boolean active = formData.getActive().getValue();
 
@@ -125,10 +162,14 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 				.withIconId(icon)
 				.withActive(active);
 	}
-
-	private void refresh(String codeTypeId) {
-		IApplicationCodeType codeType = ApplicationCodeUtility.getCodeType(codeTypeId);
-		ApplicationCodeUtility.reload(codeType.getCodeTypeClass());
+	
+	private double getOrder(ApplicationCodeFormData formData) {
+		if(formData.getOrder().getValue() != null) {
+			return (double)formData.getOrder().getValue().doubleValue();
+		}
+		else {
+			return 0.0;
+		}
 	}
 
 	private CodeRecord toCodeRecord(String codeTypeId, ICodeRow<String> codeRow) {
@@ -211,6 +252,7 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 			return getContext(connection)
 					.selectFrom(getTable())
 					.where(getTable().TYPE_ID.eq(codeTypeId))
+					.orderBy(Code.CODE.ORDER)
 					.stream()
 					.collect(Collectors.toList());
 		} 
@@ -237,12 +279,5 @@ public class ApplicationCodeService extends AbstractBaseService<Code, CodeRecord
 		}
 
 		return null;
-	}
-
-	/**
-	 * Initializes dynamic codes for the provided code type class.
-	 */
-	public void reload(Class<? extends IApplicationCodeType> clazz) {
-		ApplicationCodeUtility.reload(clazz);
 	}
 }

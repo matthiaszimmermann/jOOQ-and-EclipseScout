@@ -21,6 +21,7 @@ public class ServerProperties {
 	public static final String KEY_AUTOCREATE = "com.acme.application.server.sql.autocreate";
 	public static final String KEY_AUTOPOPULATE = "com.acme.application.server.sql.autopopulate";
 	
+	public static final String KEY_DRIVER = "com.acme.application.server.sql.driver";
 	public static final String KEY_DIALECT = "com.acme.application.server.sql.dialect";
 	public static final String KEY_MAPPING = "com.acme.application.server.sql.jdbc.mapping.name";
 	public static final String KEY_USERNAME = "com.acme.application.server.sql.username";
@@ -32,10 +33,25 @@ public class ServerProperties {
 	public static final boolean DEFAULT_AUTOCREATE = true;
 	public static final boolean DEFAULT_AUTOPOPULATE = true;
 
+	public static final String DEFAULT_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	public static final SQLDialect DEFAULT_DIALECT = SQLDialect.SQLSERVER;
 	public static final String DEFAULT_MAPPING = "jdbc:sqlserver://192.168.99.100:1433;DatabaseName=SCOUT";
 	public static final String DEFAULT_USERNAME = "SA";
 	public static final String DEFAULT_PASSWORD = "<YourStrong!Passw0rd>";
+	
+
+	public static class DriverProperty extends AbstractStringConfigProperty {
+
+		@Override
+		protected String getDefaultValue() {
+			return DEFAULT_DRIVER;
+		}
+
+		@Override
+		public String getKey() {
+			return KEY_DRIVER;
+		}
+	}
 	
 	public static class DialectProperty extends AbstractConfigProperty<SQLDialect, String> {
 
