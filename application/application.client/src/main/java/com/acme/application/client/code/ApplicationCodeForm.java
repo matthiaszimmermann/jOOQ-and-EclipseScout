@@ -16,6 +16,7 @@ import org.eclipse.scout.rt.platform.BEANS;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.shared.TEXTS;
 
+import com.acme.application.client.ClientSession;
 import com.acme.application.client.code.ApplicationCodeForm.MainBox.CancelButton;
 import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.CodeIdField;
 import com.acme.application.client.code.ApplicationCodeForm.MainBox.CodeBox.CodeTextField;
@@ -29,6 +30,7 @@ import com.acme.application.shared.code.ApplicationCodeUtility;
 import com.acme.application.shared.code.CreateApplicationCodePermission;
 import com.acme.application.shared.code.IApplicationCodeService;
 import com.acme.application.shared.code.UpdateApplicationCodePermission;
+import com.acme.application.shared.text.ITextService;
 
 @FormData(value = ApplicationCodeFormData.class, sdkCommand = FormData.SdkCommand.CREATE)
 public class ApplicationCodeForm extends AbstractForm {
@@ -68,15 +70,23 @@ public class ApplicationCodeForm extends AbstractForm {
 
 	@Override
 	public Object computeExclusiveKey() {
+		String typeId = getCodeTypeId();
 		String codeId = getCodeIdField().getValue();
-		String codeText = TEXTS.getWithFallback(codeId, codeId);
-		String typeText = TEXTS.getWithFallback(getCodeTypeId(), getCodeTypeId());
-
-		return String.format("%s %s", typeText, codeText); 
+		return String.format("%s %s", typeId, codeId); 
 	}
 
 	protected String calculateSubTitle() {
-		return (String) computeExclusiveKey();
+		String typeId = getCodeTypeId();
+		String codeId = getCodeIdField().getValue();
+		String locale = ClientSession.get().getLocale().toLanguageTag();
+		String typeText = BEANS.get(ITextService.class).getText(typeId, locale);
+		String codeText = BEANS.get(ITextService.class).getText(codeId, locale);
+		
+		if(codeText == null) {
+			codeText = String.format("[%s]", codeId);
+		}
+		
+		return String.format("%s %s", typeText, codeText);
 	}
 
 	@Override
