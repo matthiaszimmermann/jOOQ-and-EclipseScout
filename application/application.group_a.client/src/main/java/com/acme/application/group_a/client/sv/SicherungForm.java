@@ -298,6 +298,11 @@ public class SicherungForm extends AbstractForm {
 				protected String getConfiguredLabel() {
 					return TEXTS.get("Active");
 				}
+				
+				@Override
+				protected boolean getConfiguredVisible() {
+					return false;
+				}
 			}
 		}
 

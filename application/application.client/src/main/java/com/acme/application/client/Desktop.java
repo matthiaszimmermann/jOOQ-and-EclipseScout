@@ -12,6 +12,7 @@ import org.eclipse.scout.rt.client.ui.form.ScoutInfoForm;
 import org.eclipse.scout.rt.platform.Order;
 import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
+import org.eclipse.scout.rt.shared.services.common.security.ACCESS;
 
 import com.acme.application.client.admin.AdminOutline;
 import com.acme.application.client.user.ProfileForm;
@@ -202,7 +203,7 @@ public class Desktop extends AbstractDesktop {
 
 		@Override
 		protected void execInitAction() {
-			setVisiblePermission(new ViewAdminOutlinePermission());
+			setVisibleGranted(ACCESS.check(new ViewAdminOutlinePermission()));
 		}
 
 		@Override

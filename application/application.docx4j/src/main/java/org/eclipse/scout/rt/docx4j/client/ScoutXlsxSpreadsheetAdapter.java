@@ -18,6 +18,7 @@ import java.util.Locale;
 import org.eclipse.scout.docx4j.XlsxAdapter;
 import org.eclipse.scout.rt.client.services.common.file.FileService;
 import org.eclipse.scout.rt.client.ui.basic.table.ITable;
+import org.eclipse.scout.rt.client.ui.basic.table.columns.IColumn;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.IPage;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.IPageWithNodes;
 import org.eclipse.scout.rt.client.ui.desktop.outline.pages.IPageWithTable;
@@ -26,7 +27,6 @@ import org.eclipse.scout.rt.platform.util.IOUtility;
 import org.eclipse.scout.rt.platform.util.StringUtility;
 import org.eclipse.scout.rt.platform.util.date.DateUtility;
 import org.eclipse.scout.rt.shared.ScoutTexts;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class ScoutXlsxSpreadsheetAdapter extends AbstractService {
 	@Override
 	protected void doStop() {
 	}
-	
+
 	public File exportPage(String templateName, int startRow, int startCol, IPage<?> page) throws ProcessingException {
 		return exportPage(templateName, null, startRow, startCol, page, false);
 	}
@@ -152,6 +152,22 @@ public class ScoutXlsxSpreadsheetAdapter extends AbstractService {
 		//    }
 
 		infoRowList.add(ScoutTexts.get("NumberOfRows") + ": " + (csv.length - 1));
+
+		boolean addColumnTooltips = true;
+		if(addColumnTooltips) {
+			StringBuffer info = new StringBuffer();
+			for(IColumn<?> column: table.getColumns()) {
+				String hint = column.getHeaderCell().getTooltipText();
+				if(StringUtility.hasText(hint)) {
+					info.append(" " + hint);
+				}
+			}
+
+			if(StringUtility.hasText(info.toString())) {
+				infoRowList.add(ScoutTexts.get("ColumnInfos") + ": " + info.toString());
+			}
+		}
+		
 		if (writeDateAtEnd) {
 			infoRowList.add(ScoutTexts.get("ExportDate") + ": " + DateUtility.formatDate(new Date()));
 		}

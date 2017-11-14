@@ -75,6 +75,12 @@ public class ApplicationCodeUtility {
 			
 			if(codeType == null) {
 				LOG.warn("No type could be found for type id '{}'", codeTypeId);
+				
+				for(ICodeType<?, ?> ct: CODES.getAllCodeTypes("")) {
+					if(ct.getId().equals(codeTypeId)) {
+						return (IApplicationCodeType) ct;
+					}
+				}
 			}
 			else if(!(codeType instanceof IApplicationCodeType)) {
 				LOG.warn("Provided type id '{}' not of type IApplicationCodeType", codeTypeId);

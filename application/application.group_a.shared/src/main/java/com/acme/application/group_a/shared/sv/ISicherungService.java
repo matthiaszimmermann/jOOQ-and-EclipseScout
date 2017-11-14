@@ -15,5 +15,5 @@ public interface ISicherungService extends IService {
 
 	SicherungFormData store(SicherungFormData formData);
 
-	SicherungTablePageData getSicherungTableData(SearchFilter filter);
+	SicherungTablePageData getSicherungTableData(SearchFilter filter, boolean activeOnly);
 }

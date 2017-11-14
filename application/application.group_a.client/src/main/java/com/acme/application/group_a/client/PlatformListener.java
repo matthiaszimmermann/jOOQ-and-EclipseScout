@@ -17,6 +17,7 @@ import org.eclipse.scout.rt.platform.PlatformEvent;
 import org.eclipse.scout.rt.shared.extension.IExtensionRegistry;
 
 import com.acme.application.group_a.client.sv.CodeNodePageExtension;
+import com.acme.application.group_a.shared.sv.EtageCodeType;
 
 public class PlatformListener implements IPlatformListener {
 
@@ -32,7 +33,7 @@ public class PlatformListener implements IPlatformListener {
 
     // Register UI extensions
     extensionRegistry.register(CodeNodePageExtension.class);
-
+    
     // Register DTO extensions
     // extensionRegistry.register(PersonTablePageDataExtension.class);
   }

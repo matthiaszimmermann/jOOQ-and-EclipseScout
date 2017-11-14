@@ -42,7 +42,7 @@ public class SicherungService extends AbstractBaseService<Fi, FiRecord> implemen
 		if (!ACCESS.check(new CreateSicherungPermission())) {
 			throw new VetoException(TEXTS.get("AuthorizationFailed"));
 		}
-		
+
 		formData.setId(TableUtility.createId());
 		formData.getActive().setValue(true);
 		return formData;
@@ -79,10 +79,15 @@ public class SicherungService extends AbstractBaseService<Fi, FiRecord> implemen
 	}
 
 	@Override
-	public SicherungTablePageData getSicherungTableData(SearchFilter filter) {
+	public SicherungTablePageData getSicherungTableData(SearchFilter filter, boolean activeOnly) {
 		SicherungTablePageData pageData = new SicherungTablePageData();
 
-		getAll().stream().forEach(fi -> addToPageData(pageData, fi));
+		getAll().stream().forEach(fi -> {
+			if(!activeOnly || fi.getActive()) {
+				addToPageData(pageData, fi);
+			}
+		});
+		
 		return pageData;
 	}
 

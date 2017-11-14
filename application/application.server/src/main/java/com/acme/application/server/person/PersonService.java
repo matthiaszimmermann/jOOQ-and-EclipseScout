@@ -15,6 +15,11 @@ import com.acme.application.server.common.AbstractBaseService;
 public class PersonService extends AbstractBaseService<Person, PersonRecord> {
 
 	@Override
+	public Logger getLogger() {
+		return LoggerFactory.getLogger(PersonService.class);
+	}
+	
+	@Override
 	public Person getTable() {
 		return Person.PERSON;
 	}
@@ -24,9 +29,20 @@ public class PersonService extends AbstractBaseService<Person, PersonRecord> {
 		return Person.PERSON.ID;
 	}
 
-	@Override
-	public Logger getLogger() {
-		return LoggerFactory.getLogger(PersonService.class);
+	public void updateName(String personId, String firstName, String lastName) {
+		getLogger().info("Update person names to {} {} for {}", firstName, lastName, personId);
+
+		try(Connection connection = getConnection()) {
+			getContext(connection)
+			.update(getTable())
+			.set(getTable().FIRST_NAME, firstName)
+			.set(getTable().LAST_NAME, lastName)
+			.where(getIdColumn().eq(personId))
+			.execute();
+		}
+		catch (SQLException e) {
+			getLogger().error("Failed to execute updateName(). exception: ", e);
+		}
 	}
 
 	/**
@@ -45,21 +61,5 @@ public class PersonService extends AbstractBaseService<Person, PersonRecord> {
 		person.setActive(true);
 
 		return person;
-	}
-
-	public void updateName(String personId, String firstName, String lastName) {
-		getLogger().info("update person names to {} {} for {}", firstName, lastName, personId);
-
-		try(Connection connection = getConnection()) {
-			getContext(connection)
-			.update(getTable())
-			.set(getTable().FIRST_NAME, firstName)
-			.set(getTable().LAST_NAME, lastName)
-			.where(getIdColumn().eq(personId))
-			.execute();
-		}
-		catch (SQLException e) {
-			getLogger().error("Failed to execute updateName(). exception: ", e);
-		}
 	}
 }

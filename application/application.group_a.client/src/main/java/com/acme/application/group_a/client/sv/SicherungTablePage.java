@@ -17,16 +17,19 @@ import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
 import org.eclipse.scout.rt.shared.services.common.security.ACCESS;
 
 import com.acme.application.client.common.AbstractActiveColumn;
+import com.acme.application.client.common.AbstractDeleteMenu;
 import com.acme.application.client.common.AbstractEditMenu;
 import com.acme.application.client.common.AbstractExportableTable;
 import com.acme.application.client.common.AbstractIdColumn;
 import com.acme.application.client.common.AbstractNewMenu;
 import com.acme.application.group_a.client.sv.SicherungTablePage.Table;
-import com.acme.application.group_a.shared.sv.PageSicherungPermission;
 import com.acme.application.group_a.shared.sv.CreateSicherungPermission;
+import com.acme.application.group_a.shared.sv.DeleteSicherungPermission;
 import com.acme.application.group_a.shared.sv.EtageCodeType;
 import com.acme.application.group_a.shared.sv.ISicherungService;
+import com.acme.application.group_a.shared.sv.PageSicherungPermission;
 import com.acme.application.group_a.shared.sv.ReadSicherungPermission;
+import com.acme.application.group_a.shared.sv.SicherungFormData;
 import com.acme.application.group_a.shared.sv.SicherungTablePageData;
 import com.acme.application.group_a.shared.sv.UpdateSicherungPermission;
 
@@ -50,7 +53,8 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 	
 	@Override
 	protected void execLoadData(SearchFilter filter) {
-		importPageData(BEANS.get(ISicherungService.class).getSicherungTableData(filter));
+		boolean activeOnly = true;
+		importPageData(BEANS.get(ISicherungService.class).getSicherungTableData(filter, activeOnly));
 	}
 	
 	public class Table extends AbstractExportableTable {
@@ -151,6 +155,28 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 				form.addFormListener(new SicherungFormListener());
 				form.setId(getSelectedId());
 				form.startModify();
+			}
+		}
+
+		@Order(30)
+		public class DeleteMenu extends AbstractDeleteMenu {
+
+			@Override
+			protected void execInitAction() {
+				setVisibleGranted(ACCESS.check(new DeleteSicherungPermission()));
+			}
+
+			@Override
+			protected void execAction() {
+				ISicherungService service = BEANS.get(ISicherungService.class);
+				SicherungFormData formData = new SicherungFormData();
+				
+				formData.setId(getSelectedId());
+				formData = service.load(formData);
+				formData.getActive().setValue(false);
+				service.store(formData);
+				
+				reloadPage();
 			}
 		}
 		
@@ -287,6 +313,11 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 			protected String getConfiguredHeaderText() {
 				return TEXTS.get("Pruefmethode");
 			}
+			
+			@Override
+			protected String getConfiguredHeaderTooltipText() {
+				return TEXTS.get("PruefmethodeTooltip");
+			}
 
 			@Override
 			protected int getConfiguredWidth() {
@@ -322,6 +353,11 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 
 		@Order(13000)
 		public class ActiveColumn extends AbstractActiveColumn {
+			
+			@Override
+			protected boolean getConfiguredDisplayable() {
+				return false;
+			}
 		}
 	}
 }

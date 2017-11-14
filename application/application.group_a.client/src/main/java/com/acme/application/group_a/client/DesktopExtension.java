@@ -17,6 +17,9 @@ import org.eclipse.scout.rt.client.ui.desktop.AbstractDesktopExtension;
 import org.eclipse.scout.rt.client.ui.desktop.outline.AbstractOutlineViewButton;
 import org.eclipse.scout.rt.client.ui.desktop.outline.IOutline;
 import org.eclipse.scout.rt.platform.Order;
+import org.eclipse.scout.rt.shared.services.common.security.ACCESS;
+
+import com.acme.application.group_a.shared.ViewGroupOutlinePermission;
 
 public class DesktopExtension extends AbstractDesktopExtension {
 

@@ -25,6 +25,7 @@ import org.eclipse.scout.rt.platform.util.CollectionUtility;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.code.ICodeType;
 import org.eclipse.scout.rt.shared.services.common.jdbc.SearchFilter;
+import org.eclipse.scout.rt.shared.services.common.security.ACCESS;
 import org.eclipse.scout.rt.shared.services.lookup.ILookupCall;
 
 import com.acme.application.client.ClientSession;
@@ -36,6 +37,7 @@ import com.acme.application.shared.FontAwesomeIcons;
 import com.acme.application.shared.code.FileCodeType;
 import com.acme.application.shared.document.DocumentTablePageData;
 import com.acme.application.shared.document.IDocumentService;
+import com.acme.application.shared.document.PageDocumentPermission;
 
 @Data(DocumentTablePageData.class)
 public class DocumentTablePage extends AbstractPageWithTable<Table> {
@@ -48,6 +50,11 @@ public class DocumentTablePage extends AbstractPageWithTable<Table> {
 	@Override
 	protected boolean getConfiguredLeaf() {
 		return true;
+	}
+	
+	@Override
+	protected void execInitPage() {
+		setVisibleGranted(ACCESS.check(new PageDocumentPermission()));
 	}
 
 	@Override
