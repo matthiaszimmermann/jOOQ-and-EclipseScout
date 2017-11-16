@@ -82,12 +82,11 @@ public class SicherungService extends AbstractBaseService<Fi, FiRecord> implemen
 	public SicherungTablePageData getSicherungTableData(SearchFilter filter, boolean activeOnly) {
 		SicherungTablePageData pageData = new SicherungTablePageData();
 
-		getAll().stream().forEach(fi -> {
-			if(!activeOnly || fi.getActive()) {
-				addToPageData(pageData, fi);
-			}
-		});
-		
+		getAll()
+		.stream()
+		.filter(fi -> !activeOnly || fi.getActive())
+		.forEach(fi -> addToPageData(pageData, fi));
+
 		return pageData;
 	}
 

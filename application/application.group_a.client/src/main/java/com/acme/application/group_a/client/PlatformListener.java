@@ -16,8 +16,8 @@ import org.eclipse.scout.rt.platform.IPlatformListener;
 import org.eclipse.scout.rt.platform.PlatformEvent;
 import org.eclipse.scout.rt.shared.extension.IExtensionRegistry;
 
-import com.acme.application.group_a.client.sv.CodeNodePageExtension;
-import com.acme.application.group_a.shared.sv.EtageCodeType;
+import com.acme.application.group_a.client.awt.AwtCodeNodePage;
+import com.acme.application.group_a.client.sv.SvCodeNodePage;
 
 public class PlatformListener implements IPlatformListener {
 
@@ -32,7 +32,8 @@ public class PlatformListener implements IPlatformListener {
 	IExtensionRegistry extensionRegistry = BEANS.get(IExtensionRegistry.class);
 
     // Register UI extensions
-    extensionRegistry.register(CodeNodePageExtension.class);
+    extensionRegistry.register(SvCodeNodePage.class);
+    extensionRegistry.register(AwtCodeNodePage.class);
     
     // Register DTO extensions
     // extensionRegistry.register(PersonTablePageDataExtension.class);

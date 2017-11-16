@@ -4,6 +4,7 @@
 package com.acme.application.database.or;
 
 
+import com.acme.application.database.or.awt.Awt;
 import com.acme.application.database.or.core.Core;
 import com.acme.application.database.or.sv.Sv;
 import com.acme.application.database.or.sys.Sys;
@@ -32,7 +33,7 @@ import org.jooq.impl.CatalogImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultCatalog extends CatalogImpl {
 
-    private static final long serialVersionUID = -1294957700;
+    private static final long serialVersionUID = -1996862962;
 
     /**
      * The reference instance of <code></code>
@@ -48,6 +49,11 @@ public class DefaultCatalog extends CatalogImpl {
      * The schema <code>SYSIBM</code>.
      */
     public final Sysibm SYSIBM = com.acme.application.database.or.sysibm.Sysibm.SYSIBM;
+
+    /**
+     * The schema <code>awt</code>.
+     */
+    public final Awt AWT = com.acme.application.database.or.awt.Awt.AWT;
 
     /**
      * The schema <code>core</code>.
@@ -77,6 +83,7 @@ public class DefaultCatalog extends CatalogImpl {
         return Arrays.<Schema>asList(
             Sys.SYS,
             Sysibm.SYSIBM,
+            Awt.AWT,
             Core.CORE,
             Sv.SV);
     }

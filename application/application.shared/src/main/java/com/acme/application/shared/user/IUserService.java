@@ -42,7 +42,7 @@ public interface IUserService extends IService {
 	
 	/**
 	 * Returns users all users as lookup rows.
-	 * @param activeOnly: restricts result set to active users if active is true
+	 * @param activeOnly: restricts result set to active records iff active is true
 	 */
 	public List<? extends ILookupRow<String>> getLookupRows(boolean activeOnly);	
 	

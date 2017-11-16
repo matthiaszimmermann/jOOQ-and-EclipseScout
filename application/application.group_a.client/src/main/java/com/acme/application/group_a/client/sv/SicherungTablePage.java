@@ -38,7 +38,7 @@ public class SicherungTablePage extends AbstractPageWithTable<Table> {
 
 	@Override
 	protected String getConfiguredTitle() {
-		return TEXTS.get("SicherungTablePage");
+		return TEXTS.get("SicherungsVerwaltung");
 	}
 	
 	@Override

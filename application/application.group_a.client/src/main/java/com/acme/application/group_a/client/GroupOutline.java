@@ -17,6 +17,7 @@ import org.eclipse.scout.rt.client.ui.desktop.outline.pages.IPage;
 import org.eclipse.scout.rt.shared.TEXTS;
 import org.eclipse.scout.rt.shared.services.common.security.ACCESS;
 
+import com.acme.application.group_a.client.awt.PruefkoerperNodePage;
 import com.acme.application.group_a.client.sv.SicherungTablePage;
 import com.acme.application.group_a.shared.ViewGroupOutlinePermission;
 import com.acme.application.shared.FontAwesomeIcons;
@@ -36,6 +37,7 @@ public class GroupOutline extends AbstractOutline {
 	@Override
 	protected void execCreateChildPages(List<IPage<?>> pageList) {
 		pageList.add(new SicherungTablePage());
+		pageList.add(new PruefkoerperNodePage());
 	}
 
 	@Override

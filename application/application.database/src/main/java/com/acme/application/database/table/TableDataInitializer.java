@@ -12,6 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.acme.application.database.generator.IDataInitializer;
+import com.acme.application.database.or.awt.tables.Produkt;
+import com.acme.application.database.or.awt.tables.Pruefkoerper;
+import com.acme.application.database.or.awt.tables.records.ProduktRecord;
+import com.acme.application.database.or.awt.tables.records.PruefkoerperRecord;
 import com.acme.application.database.or.core.tables.records.CodeRecord;
 import com.acme.application.database.or.core.tables.records.DocumentRecord;
 import com.acme.application.database.or.core.tables.records.PersonRecord;
@@ -23,6 +27,8 @@ import com.acme.application.database.or.core.tables.records.UserRecord;
 import com.acme.application.database.or.core.tables.records.UserRoleRecord;
 import com.acme.application.database.or.sv.tables.Fi;
 import com.acme.application.database.or.sv.tables.records.FiRecord;
+import com.acme.application.group_a.shared.awt.FarbeCodeType;
+import com.acme.application.group_a.shared.awt.ProduktFamilieCodeType;
 import com.acme.application.group_a.shared.sv.EtageCodeType;
 import com.acme.application.shared.code.FileCodeType;
 import com.acme.application.shared.code.LocaleCodeType;
@@ -111,7 +117,7 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 	public static final TextRecord TEXT_CODE_OG_2 = new TextRecord(CODE_OG_2.getId(), TextTable.LOCALE_DEFAULT, "2.OG");
 
 	public static final TextRecord TEXT_TYPE_ETAGE_DE = new TextRecord(TYPE_ID_ETAGE, TextTable.LOCALE_GERMAN, "Etage");
-	
+
 	public static final FiRecord FI_700_1 = new FiRecord()
 			.with(Fi.FI.ID, "cf3b8996-4e6b-4016-97cf-29d803d14aa6")
 			.with(Fi.FI.GEB_NR, "700")
@@ -122,6 +128,50 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 			.with(Fi.FI.SICHERUNG, "F 201")
 			.with(Fi.FI.IF, "30mA")
 			.with(Fi.FI.ACTIVE, true);
+
+	//--- AWT Schema Items --------------------------------------------------------------//
+
+	public static final String TYPE_ID_FARBE = FarbeCodeType.ID;
+	public static final TypeRecord TYPE_FARBE = new TypeRecord(TYPE_ID_FARBE, CodeTypeEnum.STRING.type());
+	public static final CodeRecord CODE_ANTHRACITE = new CodeRecord(FarbeCodeType.Anthracite.ID, TYPE_ID_FARBE, 10.0, null, null, true);
+	public static final CodeRecord CODE_BLAU = new CodeRecord(FarbeCodeType.Blau.ID, TYPE_ID_FARBE, 20.0, null, null, true);
+	public static final CodeRecord CODE_SCHWARZ = new CodeRecord(FarbeCodeType.Schwarz.ID, TYPE_ID_FARBE, 90.0, null, null, true);
+
+	public static final String TYPE_ID_PRODUKT_FAMILIE = ProduktFamilieCodeType.ID;
+	public static final TypeRecord TYPE_PRODUKT_FAMILIE = new TypeRecord(TYPE_ID_PRODUKT_FAMILIE, CodeTypeEnum.STRING.type());
+	public static final CodeRecord CODE_ROH = new CodeRecord(ProduktFamilieCodeType.Roh.ID, TYPE_ID_PRODUKT_FAMILIE, 10.0, null, null, true);
+	public static final CodeRecord CODE_H4 = new CodeRecord(ProduktFamilieCodeType.H4.ID, TYPE_ID_PRODUKT_FAMILIE, 110.0, null, null, true);
+
+	public static final TextRecord TEXT_TYPE_FARBE = new TextRecord(TYPE_ID_FARBE, TextTable.LOCALE_DEFAULT, "Farbe");
+	public static final TextRecord TEXT_CODE_ANTHRACITE = new TextRecord(CODE_ANTHRACITE.getId(), TextTable.LOCALE_DEFAULT, "Anthracite");
+	public static final TextRecord TEXT_CODE_BLAU = new TextRecord(CODE_BLAU.getId(), TextTable.LOCALE_DEFAULT, "Blau");
+	public static final TextRecord TEXT_CODE_SCHWARZ = new TextRecord(CODE_SCHWARZ.getId(), TextTable.LOCALE_DEFAULT, "Schwarz");
+
+	public static final TextRecord TEXT_TYPE_PRODUKT_FAMILIE = new TextRecord(TYPE_ID_PRODUKT_FAMILIE, TextTable.LOCALE_DEFAULT, "P-Familie");
+	public static final TextRecord TEXT_CODE_ROH = new TextRecord(CODE_ROH.getId(), TextTable.LOCALE_DEFAULT, "roh");
+	public static final TextRecord TEXT_CODE_H4 = new TextRecord(CODE_H4.getId(), TextTable.LOCALE_DEFAULT, "H4");
+
+	public static final ProduktRecord RI_20E = new ProduktRecord()
+			.with(Produkt.PRODUKT.ID, "23")
+			.with(Produkt.PRODUKT.BEZEICHNUNG, "RI 20E")
+			.with(Produkt.PRODUKT.FAMILIE, CODE_ROH.getId())
+			.with(Produkt.PRODUKT.BESTAND_MIN, 10)
+			.with(Produkt.PRODUKT.ACTIVE, true);
+
+	public static final PruefkoerperRecord PK_5689 = new PruefkoerperRecord()
+			.with(Pruefkoerper.PRUEFKOERPER.ID, "51c10002-2920-40d7-b130-50019c60957f")
+			.with(Pruefkoerper.PRUEFKOERPER.NR, 5689)
+			.with(Pruefkoerper.PRUEFKOERPER.PRODUKT_ID, RI_20E.getId())
+			.with(Pruefkoerper.PRUEFKOERPER.COLOR_ID, CODE_SCHWARZ.getId())
+			.with(Pruefkoerper.PRUEFKOERPER.COLOR_DESCRIPTION, "")
+			.with(Pruefkoerper.PRUEFKOERPER.FORM, "Platte")
+			.with(Pruefkoerper.PRUEFKOERPER.SCHRANK, "1")
+			.with(Pruefkoerper.PRUEFKOERPER.BOXE, "20")
+			.with(Pruefkoerper.PRUEFKOERPER.LAENGE, 100)
+			.with(Pruefkoerper.PRUEFKOERPER.BREITE, 100)
+			.with(Pruefkoerper.PRUEFKOERPER.DICKE, 3)
+			.with(Pruefkoerper.PRUEFKOERPER.BESTAND, 17)
+			.with(Pruefkoerper.PRUEFKOERPER.ACTIVE, true);
 
 	//----------------------------------------------------------------------------------//
 	private int index;
@@ -136,6 +186,7 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 		LOG.info("Insert minimal setup data");
 		initializeCore(context);		
 		initializeSv(context);
+		initializeAwt(context);
 	}
 
 	/**
@@ -150,30 +201,6 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 		insertUserRoles(ctx);
 	}
 
-	/**
-	 * insert minimal sv data
-	 */
-	private void initializeSv(DSLContext ctx) {
-		insertFi(ctx);
-
-		insert(ctx, TYPE_ETAGE);
-		insert(ctx, CODE_UG);
-		insert(ctx, CODE_EG);
-		insert(ctx, CODE_OG_1);
-		insert(ctx, CODE_OG_2);
-
-		insert(ctx, TEXT_TYPE_ETAGE);
-		insert(ctx, TEXT_TYPE_ETAGE_DE);
-		
-		insert(ctx, TEXT_CODE_UG);
-		insert(ctx, TEXT_CODE_EG);
-		insert(ctx, TEXT_CODE_OG_1);
-		insert(ctx, TEXT_CODE_OG_2);
-	}
-
-	private void insertFi(DSLContext ctx) {
-		insert(ctx, FI_700_1);
-	}
 
 	private void insertUserRoles(DSLContext ctx) {
 		insert(ctx, USER_ROLE_ROOT);
@@ -191,6 +218,66 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 
 	private void insertPersons(DSLContext ctx) {
 		insert(ctx, PERSON_ROOT);
+	}
+
+	/**
+	 * insert minimal sv data
+	 */
+	private void initializeSv(DSLContext ctx) {
+		insert(ctx, TYPE_ETAGE);
+		insert(ctx, CODE_UG);
+		insert(ctx, CODE_EG);
+		insert(ctx, CODE_OG_1);
+		insert(ctx, CODE_OG_2);
+
+		insert(ctx, TEXT_TYPE_ETAGE);
+		insert(ctx, TEXT_TYPE_ETAGE_DE);
+
+		insert(ctx, TEXT_CODE_UG);
+		insert(ctx, TEXT_CODE_EG);
+		insert(ctx, TEXT_CODE_OG_1);
+		insert(ctx, TEXT_CODE_OG_2);
+
+		insertFi(ctx);		
+	}
+
+	private void insertFi(DSLContext ctx) {
+		insert(ctx, FI_700_1);
+	}
+
+
+	/**
+	 * insert minimal awt data
+	 */
+	private void initializeAwt(DSLContext ctx) {
+		insert(ctx, TYPE_FARBE);
+		insert(ctx, CODE_ANTHRACITE);
+		insert(ctx, CODE_BLAU);
+		insert(ctx, CODE_SCHWARZ);
+
+		insert(ctx, TYPE_PRODUKT_FAMILIE);
+		insert(ctx, CODE_ROH);
+		insert(ctx, CODE_H4);
+
+		insert(ctx, TEXT_TYPE_FARBE);
+		insert(ctx, TEXT_CODE_ANTHRACITE);
+		insert(ctx, TEXT_CODE_BLAU);
+		insert(ctx, TEXT_CODE_SCHWARZ);
+
+		insert(ctx, TEXT_TYPE_PRODUKT_FAMILIE);
+		insert(ctx, TEXT_CODE_ROH);
+		insert(ctx, TEXT_CODE_H4);
+
+		insertProduktFamilie(ctx);
+		insertPruefkoerper(ctx);
+	}
+
+	private void insertProduktFamilie(DSLContext ctx) {
+		insert(ctx, RI_20E);
+	}
+
+	private void insertPruefkoerper(DSLContext ctx) {
+		insert(ctx, PK_5689);
 	}
 
 	/**
@@ -235,7 +322,7 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 		insert(ctx, TEXT_TYPE_FILE_DE);
 		insert(ctx, TEXT_TYPE_SEX);
 		insert(ctx, TEXT_TYPE_SEX_DE);
-		
+
 		insert(ctx, TEXT_UNDEFINED);
 
 		insert(ctx, TEXT_ROOT);
@@ -276,10 +363,10 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 
 		// TODO does not work on tomcat, find out why
 		// load image file from src/main/resource folder into database
-//		byte [] content = loadResourceBytes("file/" + DOCUMENT_LOGO_NAME);
-//		DOCUMENT_ALICE_2.setContent(content);
-//		DOCUMENT_ALICE_2.setSize(BigDecimal.valueOf(content.length));
-//		insert(ctx, DOCUMENT_ALICE_2);
+		//		byte [] content = loadResourceBytes("file/" + DOCUMENT_LOGO_NAME);
+		//		DOCUMENT_ALICE_2.setContent(content);
+		//		DOCUMENT_ALICE_2.setSize(BigDecimal.valueOf(content.length));
+		//		insert(ctx, DOCUMENT_ALICE_2);
 	}
 
 	private void insert(DSLContext ctx, org.jooq.Record record) {
@@ -299,6 +386,10 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 			// sv records
 			if(record instanceof FiRecord) { ctx.executeInsert((FiRecord)record); return; }
 
+			// awt records
+			if(record instanceof ProduktRecord) { ctx.executeInsert((ProduktRecord)record); return; }
+			if(record instanceof PruefkoerperRecord) { ctx.executeInsert((PruefkoerperRecord)record); return; }
+
 			LOG.warn("unknown record type '{}' in insert(). skipping insert ", record.getClass().getSimpleName());
 		}
 		catch(DataAccessException e) { 
@@ -312,18 +403,18 @@ public class TableDataInitializer extends TableUtility implements IDataInitializ
 
 	private byte [] loadResourceBytes(String fileName) {
 		byte [] content = null;
-		
+
 		try {
 			ClassLoader classLoader = getClass().getClassLoader();
 			String filePath = classLoader.getResource(fileName).getPath();
 			LOG.info("Raw path {}", filePath);
-		
+
 			if(System.getProperty("os.name").contains("indow")) {
 				if(filePath.startsWith("file:/") && filePath.charAt(7) == ':') {
 					filePath = filePath.substring(6);
 				}
 			}
-			
+
 			LOG.info("Processed path {}", filePath);
 			File file = new File(filePath);
 
